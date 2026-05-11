@@ -50,7 +50,7 @@ GitHub 遠端：`https://github.com/Yuchiaoniu/psycho.git`
 **環境層**
 12. 環境控制（Environmental Control）
 
-### 正錨路徑（24 條）
+### 正錨路徑（25 條）
 
 物理層反制：
 - 熟悉安全存在建立（Familiar Safe Presence）— 熟悉度 > 強壯度
