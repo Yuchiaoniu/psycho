@@ -50,7 +50,7 @@ GitHub 遠端：`https://github.com/Yuchiaoniu/psycho.git`
 **環境層**
 12. 環境控制（Environmental Control）
 
-### 正錨路徑（22 條）
+### 正錨路徑（24 條）
 
 物理層反制：
 - 熟悉安全存在建立（Familiar Safe Presence）— 熟悉度 > 強壯度
@@ -63,6 +63,11 @@ GitHub 遠端：`https://github.com/Yuchiaoniu/psycho.git`
 - 非依附性給予、正向顯著性植入、可預測性建立
 - 自主性保護、社會健康示範、敘事重構
 - 微小勝利累積、具身認知重置
+
+操控環境策略層：
+- 競爭歸因重構（Competition Attribution Reframing）— 三角操控次級效應的正確歸因
+- 穩定能力培養（Stability Capacity Building）— 從評估他人穩定轉為建立自身穩定能力
+- 自然脈絡擴張（Natural Context Expansion）— 純內在訓練，五層流程，感官擴張稀釋威脅梯度
 
 ### 複合攻擊五層結構
 
