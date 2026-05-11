@@ -1,0 +1,157 @@
+﻿{
+  "tree": {
+    "id": "root",
+    "question": "你現在能說話嗎？",
+    "options": [
+      {
+        "label": "可以說話",
+        "next": "familiarity"
+      },
+      {
+        "label": "不能說話",
+        "next": "silent_actions"
+      }
+    ]
+  },
+  "nodes": {
+    "familiarity": {
+      "question": "你和它的熟悉程度？",
+      "options": [
+        { "label": "陌生", "next": "stranger_actions" },
+        { "label": "認識但不熟", "next": "acquaintance_actions" },
+        { "label": "熟悉", "next": "target_state" }
+      ]
+    },
+    "target_state": {
+      "question": "它現在的狀態？",
+      "options": [
+        { "label": "解離中（眼神空洞）", "next": "dissociation_actions" },
+        { "label": "緊張但清醒", "next": "tense_actions" },
+        { "label": "相對穩定", "next": "stable_actions" }
+      ]
+    },
+    "silent_actions": {
+      "type": "result",
+      "title": "不出聲介入方案",
+      "actions": [
+        {
+          "action": "靜止存在",
+          "description": "在它視線範圍內靜止，繼續做自己的事，不看攻擊者。",
+          "mechanism": "靜止在動態威脅環境中自動被視覺系統標記為「安全」，它的注意力會自然轉向。",
+          "risk": "低"
+        },
+        {
+          "action": "物體落地",
+          "description": "讓手上的東西不小心掉落，製造聲響。",
+          "mechanism": "強制性模式中斷——在攻擊的注意力迴路中插入不連續點，它的注意力有機會重設。",
+          "risk": "低"
+        },
+        {
+          "action": "改變空間位置",
+          "description": "移動到它自然視線會掃到的位置，不靠近，只改變空間結構。",
+          "mechanism": "給它視野裡一個已知是安全的錨點，提供可以轉向的方向。",
+          "risk": "低"
+        }
+      ]
+    },
+    "stranger_actions": {
+      "type": "result",
+      "title": "陌生人介入方案",
+      "actions": [
+        {
+          "action": "不建議直接介入",
+          "description": "陌生人的介入對它的神經系統來說是另一個需要評估的刺激，效果有限。",
+          "mechanism": "它不認識你，無法快速建立安全感。",
+          "risk": "中"
+        },
+        {
+          "action": "製造環境事件",
+          "description": "透過不相關的環境行動（聲響、移動）打斷當下氣氛。",
+          "mechanism": "不需要它識別你，只需要中斷攻擊者對它注意力的控制。",
+          "risk": "低"
+        }
+      ]
+    },
+    "acquaintance_actions": {
+      "type": "result",
+      "title": "一般認識的介入方案",
+      "actions": [
+        {
+          "action": "提供自然出口",
+          "description": "「我們不是說好要去某某地方嗎？」給它一個不需要解釋的離開理由。",
+          "mechanism": "讓它有選擇，而不是被迫做決定。出口要自然，不要讓它成為衝突焦點。",
+          "risk": "低"
+        },
+        {
+          "action": "靜止錨點",
+          "description": "在它視線範圍內穩定存在，讓它知道有地方可以轉向。",
+          "mechanism": "給它神經系統一個「已知是穩定」的參照點。",
+          "risk": "最低"
+        }
+      ]
+    },
+    "dissociation_actions": {
+      "type": "result",
+      "title": "解離狀態的介入方案",
+      "warning": "它正在保護自己，不要給它更多需要處理的刺激。",
+      "actions": [
+        {
+          "action": "什麼都不做，只是在場",
+          "description": "停在它視線可及的範圍內，不靠近、不說話、不對視。",
+          "mechanism": "你的穩定存在本身就是訊號。等它的眼神恢復焦點，才給輕微回應。",
+          "risk": "最低"
+        },
+        {
+          "action": "等待清醒時刻",
+          "description": "解離不會永遠持續。它清醒後會記得誰在旁邊。",
+          "mechanism": "長期穩定出現的累積效果，比當下的行動更重要。",
+          "risk": "最低"
+        }
+      ]
+    },
+    "tense_actions": {
+      "type": "result",
+      "title": "緊張但清醒的介入方案",
+      "actions": [
+        {
+          "action": "提供選擇而非指令",
+          "description": "「你要不要先去___？」給選項，讓它決定。",
+          "mechanism": "能動性喚醒——在緊張狀態下幫它找回做選擇的能力。",
+          "risk": "低"
+        },
+        {
+          "action": "不對抗攻擊者",
+          "description": "不看它、不回應它，把注意力完全給它。",
+          "mechanism": "你的非對抗讓它不需要處理衝突，降低它的認知負荷。",
+          "risk": "低"
+        }
+      ]
+    },
+    "stable_actions": {
+      "type": "result",
+      "title": "相對穩定狀態的介入方案",
+      "actions": [
+        {
+          "action": "輕鬆的普通對話",
+          "description": "談任何它有興趣的普通話題，完全不提那個人或你們的關係狀況。",
+          "mechanism": "正向顯著性植入——讓這次對話成為它記憶裡輕鬆的錨點。",
+          "risk": "最低"
+        },
+        {
+          "action": "你先結束對話",
+          "description": "在它想結束之前，你先說「我先去___了」。",
+          "mechanism": "它帶著「還想再說」的感覺離開。認知可及性的建立。",
+          "risk": "最低"
+        },
+        {
+          "action": "脈絡重建提問",
+          "description": "「你有沒有注意到，每次你想抽身，它就剛好出現？」",
+          "mechanism": "讓它自己命名正在發生的事，比你告訴它有效十倍。",
+          "risk": "中（需要時機對）"
+        }
+      ]
+    }
+  }
+}
+
+

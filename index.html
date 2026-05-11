@@ -1,0 +1,707 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>心理路徑地圖 — Psych Resilience</title>
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --bg2: #ffffff;
+      --bg3: #e8edff;
+      --accent-attack: #e53935;
+      --accent-positive: #0288d1;
+      --accent-neutral: #546e9a;
+      --text: #1a1f3c;
+      --text-dim: #5a6488;
+      --border: #c8d0f0;
+      --radius: 12px;
+      --transition: 0.25s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.7; min-height: 100vh; }
+    a { color: var(--accent-positive); text-decoration: none; }
+
+    /* NAV */
+    nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-size: 1.1rem; font-weight: 700; padding: 16px 0; color: var(--text); margin-right: 16px; }
+    .nav-btn { padding: 8px 16px; border-radius: 8px; cursor: pointer; border: none; background: transparent; color: var(--text-dim); font-size: 0.9rem; transition: var(--transition); }
+    .nav-btn:hover, .nav-btn.active { background: var(--bg3); color: var(--text); }
+    .lens-selector { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+    .lens-label { font-size: 0.8rem; color: var(--text-dim); margin-right: 4px; }
+    .lens-btn { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text-dim); font-size: 0.82rem; transition: var(--transition); }
+    .lens-btn.active { background: var(--accent-positive); border-color: var(--accent-positive); color: #ffffff; font-weight: 600; }
+
+    /* PAGES */
+    .page { display: none; max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .page.active { display: block; }
+
+    /* HOME */
+    .hero { text-align: center; padding: 64px 0 48px; }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-positive), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px; }
+    .hero p { font-size: 1.1rem; color: var(--text-dim); max-width: 600px; margin: 0 auto 40px; }
+    .disclaimer { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 24px; font-size: 0.85rem; color: var(--text-dim); max-width: 600px; margin: 0 auto 48px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .home-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; cursor: pointer; transition: var(--transition); }
+    .home-card:hover { border-color: var(--accent-positive); transform: translateY(-2px); }
+    .home-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .home-card p { font-size: 0.88rem; color: var(--text-dim); }
+    .home-card .icon { font-size: 2rem; margin-bottom: 12px; }
+
+    /* SECTION TITLE */
+    .section-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    .section-sub { color: var(--text-dim); margin-bottom: 28px; font-size: 0.95rem; }
+    .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px; }
+    .tag.attack { background: rgba(224,82,82,0.15); color: var(--accent-attack); border: 1px solid rgba(224,82,82,0.3); }
+    .tag.positive { background: rgba(82,192,224,0.15); color: var(--accent-positive); border: 1px solid rgba(82,192,224,0.3); }
+
+    /* PATH LIST */
+    .path-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .tab-btn { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text-dim); font-size: 0.9rem; transition: var(--transition); }
+    .tab-btn.active.attack { background: rgba(224,82,82,0.15); border-color: var(--accent-attack); color: var(--accent-attack); }
+    .tab-btn.active.positive { background: rgba(82,192,224,0.15); border-color: var(--accent-positive); color: var(--accent-positive); }
+    .path-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .path-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: var(--transition); }
+    .path-card:hover { border-color: var(--accent-positive); }
+    .path-card.attack:hover { border-color: var(--accent-attack); }
+    .path-card h4 { font-size: 1rem; margin-bottom: 4px; }
+    .path-card .en { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }
+    .path-card .excerpt { font-size: 0.85rem; color: var(--text-dim); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .weight-bar { display: flex; gap: 3px; margin-top: 12px; }
+    .weight-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .weight-dot.filled.attack { background: var(--accent-attack); }
+    .weight-dot.filled.positive { background: var(--accent-positive); }
+
+    /* PATH DETAIL */
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); cursor: pointer; margin-bottom: 24px; font-size: 0.9rem; transition: var(--transition); }
+    .back-btn:hover { color: var(--text); }
+    .detail-header { margin-bottom: 32px; }
+    .detail-header h2 { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+    .detail-header .en { font-size: 1rem; color: var(--text-dim); }
+    .detail-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+    .detail-section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 12px; }
+    .detail-section p { font-size: 0.95rem; }
+    .signals-list { list-style: none; }
+    .signals-list li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; gap: 8px; }
+    .signals-list li:last-child { border-bottom: none; }
+    .signals-list li::before { content: "→"; color: var(--accent-attack); flex-shrink: 0; }
+    .signals-list.positive li::before { color: var(--accent-positive); }
+    .lens-box { background: var(--bg3); border-radius: 8px; padding: 16px; font-size: 0.9rem; font-style: italic; color: var(--text-dim); border-left: 3px solid var(--accent-positive); }
+    .counter-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .counter-tag { padding: 4px 12px; background: rgba(82,192,224,0.1); border: 1px solid rgba(82,192,224,0.3); border-radius: 20px; font-size: 0.82rem; color: var(--accent-positive); cursor: pointer; }
+    .counter-tag:hover { background: rgba(82,192,224,0.2); }
+
+    /* COMPOSITE ATTACK */
+    .layers { display: flex; flex-direction: column; gap: 12px; }
+    .layer-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; border-left: 4px solid transparent; }
+    .layer-card.l1 { border-left-color: #e05252; }
+    .layer-card.l2 { border-left-color: #e07852; }
+    .layer-card.l3 { border-left-color: #c052e0; }
+    .layer-card.l4 { border-left-color: #52a0e0; }
+    .layer-card.l5 { border-left-color: #52e0c0; }
+    .layer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .layer-name { font-weight: 700; font-size: 1rem; }
+    .layer-weight { font-size: 0.82rem; color: var(--text-dim); }
+    .layer-meta { display: flex; gap: 16px; font-size: 0.82rem; color: var(--text-dim); margin-bottom: 10px; }
+    .flow-diagram { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 20px; font-family: monospace; font-size: 0.85rem; color: var(--text-dim); text-align: center; margin: 24px 0; white-space: pre; }
+
+    /* CALCULUS */
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .calc-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .calc-card .formula { font-size: 1.8rem; margin-bottom: 12px; }
+    .calc-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .calc-card .zh { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 12px; }
+    .calc-card .insight { background: var(--bg3); border-radius: 8px; padding: 12px; font-size: 0.85rem; font-style: italic; border-left: 3px solid #a78bfa; }
+    .integral-demo { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 24px; }
+    .integral-demo h3 { margin-bottom: 16px; }
+    .bar-container { display: flex; align-items: flex-end; gap: 4px; height: 120px; margin-bottom: 16px; }
+    .bar { width: 28px; border-radius: 4px 4px 0 0; transition: height 0.5s ease; background: var(--accent-positive); opacity: 0.7; }
+    .add-btn { padding: 10px 20px; background: var(--accent-positive); border: none; border-radius: 8px; color: #ffffff; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    .add-btn:hover { opacity: 0.85; }
+    .integral-stats { display: flex; gap: 24px; font-size: 0.9rem; margin-top: 12px; }
+    .stat { color: var(--text-dim); }
+    .stat span { color: var(--text); font-weight: 600; }
+
+    /* DECISION TREE */
+    .tree-container { max-width: 700px; }
+    .tree-question { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 16px; }
+    .tree-question h3 { font-size: 1.1rem; margin-bottom: 20px; }
+    .tree-options { display: flex; flex-direction: column; gap: 10px; }
+    .tree-option { padding: 12px 20px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: var(--transition); font-size: 0.95rem; text-align: left; }
+    .tree-option:hover { border-color: var(--accent-positive); color: var(--accent-positive); }
+    .tree-breadcrumb { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .breadcrumb-item { font-size: 0.8rem; color: var(--text-dim); background: var(--bg3); padding: 3px 10px; border-radius: 20px; }
+    .result-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .result-card h3 { font-size: 1.1rem; margin-bottom: 4px; }
+    .result-warning { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); border-radius: 8px; padding: 12px 16px; font-size: 0.88rem; color: #e07878; margin-bottom: 20px; }
+    .action-item { background: var(--bg3); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .action-item h4 { font-size: 0.95rem; margin-bottom: 6px; }
+    .action-item .desc { font-size: 0.88rem; color: var(--text-dim); margin-bottom: 8px; }
+    .action-item .mech { font-size: 0.82rem; font-style: italic; color: var(--accent-positive); }
+    .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; margin-top: 8px; }
+    .risk-最低 { background: rgba(82,224,82,0.1); color: #52e052; border: 1px solid rgba(82,224,82,0.3); }
+    .risk-低 { background: rgba(82,192,224,0.1); color: var(--accent-positive); border: 1px solid rgba(82,192,224,0.3); }
+    .risk-中 { background: rgba(224,160,82,0.1); color: #e0a052; border: 1px solid rgba(224,160,82,0.3); }
+    .reset-btn { padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); cursor: pointer; margin-top: 16px; font-size: 0.9rem; transition: var(--transition); }
+    .reset-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      nav { overflow-x: auto; gap: 4px; }
+      .hero h1 { font-size: 2rem; }
+      .page { padding: 20px 16px; }
+      .lens-selector { display: none; }
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⚡ 心理路徑</div>
+  <button class="nav-btn active" onclick="showPage('home')">首頁</button>
+  <button class="nav-btn" onclick="showPage('paths')">路徑地圖</button>
+  <button class="nav-btn" onclick="showPage('composite')">複合攻擊</button>
+  <button class="nav-btn" onclick="showPage('calculus')">微積分框架</button>
+  <button class="nav-btn" onclick="showPage('tree')">旁觀者決策樹</button>
+  <button class="nav-btn" onclick="showPage('cases')">情境模擬</button>
+  <div class="lens-selector">
+    <span class="lens-label">視角：</span>
+    <button class="lens-btn active" onclick="setLens('victim')">受害者</button>
+    <button class="lens-btn" onclick="setLens('bystander')">旁觀者</button>
+    <button class="lens-btn" onclick="setLens('perpetrator')">施暴者</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>心理路徑地圖</h1>
+    <p>識別心理操控模式、建立正向錨定、提升社會韌性。<br>所有人都值得看見正在發生什麼。</p>
+    <div class="disclaimer">
+      ⚠️ 本工具僅供教育與認知目的，不作為心理診斷或治療依據。如有需要，請尋求專業心理協助。
+    </div>
+  </div>
+  <div class="card-grid">
+    <div class="home-card" onclick="showPage('paths')">
+      <div class="icon">🗺️</div>
+      <h3>路徑地圖</h3>
+      <p>11 條攻擊性路徑 × 20 條正錨路徑。每條路徑含機制、辨識訊號、三視角說明。</p>
+    </div>
+    <div class="home-card" onclick="showPage('composite')">
+      <div class="icon">⚡</div>
+      <h3>複合攻擊解析</h3>
+      <p>五個層次的系統性分析：物理層、環境層、心理層、社會層、資訊層。</p>
+    </div>
+    <div class="home-card" onclick="showPage('calculus')">
+      <div class="icon">∫</div>
+      <h3>微積分框架</h3>
+      <p>用一階導數、積分、梯度、臨界點理解心理狀態的變化規律。</p>
+    </div>
+    <div class="home-card" onclick="showPage('tree')">
+      <div class="icon">🌿</div>
+      <h3>旁觀者決策樹</h3>
+      <p>根據情境給出最省力、最無聲、最有效的介入建議。</p>
+    </div>
+    <div class="home-card" onclick="showPage('cases')">
+      <div class="icon">📋</div>
+      <h3>情境模擬</h3>
+      <p>匿名化的真實情境紀錄，含完整攻擊層次分析、旁觀者錯誤與修正、六種戰術手冊。</p>
+    </div>
+  </div>
+</div>
+
+<!-- PATHS -->
+<div id="page-paths" class="page">
+  <div class="section-title">路徑地圖</div>
+  <div class="section-sub">選擇視角（右上角）可切換每條路徑的說明框架</div>
+  <div class="path-tabs">
+    <button class="tab-btn active attack" onclick="switchPathTab('attack', this)">攻擊性路徑 (11)</button>
+    <button class="tab-btn" onclick="switchPathTab('positive', this)">正錨路徑 (20)</button>
+  </div>
+  <div id="path-grid" class="path-grid"></div>
+</div>
+
+<!-- PATH DETAIL -->
+<div id="page-detail" class="page">
+  <div class="back-btn" onclick="showPage('paths')">← 返回路徑地圖</div>
+  <div id="detail-content"></div>
+</div>
+
+<!-- COMPOSITE ATTACK -->
+<div id="page-composite" class="page">
+  <div class="section-title">複合攻擊解析</div>
+  <div class="section-sub">五個層次同時運作的系統性操控，每一層都在為其它層清除障礙</div>
+
+  <div class="flow-diagram">物理層（開門）
+      ↓
+環境層（縮小空間）
+      ↓
+心理層（核心引擎運轉）
+      ↓
+社會層（封鎖退路）
+      ↓
+資訊層（乘數放大）
+      ↓
+ 目標自主性趨近於零</div>
+
+  <div id="layers-container" class="layers"></div>
+</div>
+
+<!-- CALCULUS -->
+<div id="page-calculus" class="page">
+  <div class="section-title">微積分框架</div>
+  <div class="section-sub">心理狀態的變化遵循可被理解的數學規律</div>
+
+  <div class="calc-grid">
+    <div class="calc-card">
+      <div class="formula">f'(t)</div>
+      <h4>一階導數 — 變化方向</h4>
+      <div class="zh">它當前的狀態不重要，狀態的變化方向才重要</div>
+      <div class="insight">你的正錨在做的事，就是讓這條曲線的斜率從負轉正。不看當前數值，看趨勢。</div>
+    </div>
+    <div class="calc-card">
+      <div class="formula">f''(t)</div>
+      <h4>二階導數 — 改善加速度</h4>
+      <div class="zh">改善速度本身是在加快還是放慢？</div>
+      <div class="insight">如果它的狀態改善越來越快，代表正錨在產生複利效應。改善速度放慢，代表有新干擾進入。</div>
+    </div>
+    <div class="calc-card">
+      <div class="formula">∫f dt</div>
+      <h4>積分 — 累積面積</h4>
+      <div class="zh">每次穩定存在都在曲線下累積面積</div>
+      <div class="insight">你不需要一個完美的關鍵時刻。你需要長期低強度的穩定存在。面積夠大，臨界點自然到來。</div>
+    </div>
+    <div class="calc-card">
+      <div class="formula">∂f/∂x</div>
+      <h4>梯度 — 壓力地形</h4>
+      <div class="zh">它的每個選擇，都在尋找壓力最小的路徑</div>
+      <div class="insight">你不是把它從那個谷拉出來，是在旁邊建立一個更低的谷底，讓地形本身改變，梯度方向慢慢轉向。</div>
+    </div>
+    <div class="calc-card">
+      <div class="formula">f'(c)=0</div>
+      <h4>臨界點 — 相變</h4>
+      <div class="zh">心理狀態的改變往往不是漸進的，是突然的</div>
+      <div class="insight">就像水從99度到100度，沸騰是瞬間發生的。你的積分工作，是在幫它更快到達那個沸點。</div>
+    </div>
+    <div class="calc-card">
+      <div class="formula">→ x*</div>
+      <h4>收斂條件</h4>
+      <div class="zh">系統要收斂到穩定點，需要三個條件</div>
+      <div class="insight">1. 方向正確（在正確軸線上）2. 步長適當（不能太大或太小）3. 持續迭代（不能中途停止）</div>
+    </div>
+  </div>
+
+  <div class="integral-demo">
+    <h3>積分互動模擬 — 點擊累積正錨事件</h3>
+    <div class="bar-container" id="bar-container"></div>
+    <button class="add-btn" onclick="addAnchorEvent()">＋ 新增正錨事件</button>
+    <div class="integral-stats">
+      <div class="stat">事件次數：<span id="event-count">0</span></div>
+      <div class="stat">累積面積：<span id="total-area">0</span></div>
+      <div class="stat">距臨界點：<span id="distance">100%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CASES -->
+<div id="page-cases" class="page">
+  <div class="section-title">情境模擬</div>
+  <div class="section-sub">真實情境的匿名化紀錄，作為心理路徑的具體案例參照</div>
+  <div id="cases-list"></div>
+</div>
+
+<!-- CASE DETAIL -->
+<div id="page-case-detail" class="page">
+  <div class="back-btn" onclick="showPage('cases')">← 返回情境列表</div>
+  <div id="case-detail-content"></div>
+</div>
+
+<!-- TREE -->
+<div id="page-tree" class="page">
+  <div class="section-title">旁觀者決策樹</div>
+  <div class="section-sub">根據你的情境，找到最省力、最無聲、最有效的介入方式</div>
+  <div class="tree-container">
+    <div class="tree-breadcrumb" id="tree-breadcrumb"></div>
+    <div id="tree-content"></div>
+  </div>
+</div>
+
+<script>
+let casesData = null;
+let currentLens = 'victim';
+let currentPathType = 'attack';
+let pathsData = null;
+let treeData = null;
+let treePath = [];
+let anchorEvents = 0;
+const THRESHOLD = 20;
+
+async function loadData() {
+  const [p, t, c] = await Promise.all([
+    fetch('data/paths.json').then(r => r.json()),
+    fetch('data/decision-tree.json').then(r => r.json()),
+    fetch('data/cases.json').then(r => r.json())
+  ]);
+  pathsData = p;
+  treeData = t;
+  casesData = c;
+  renderPathGrid();
+  renderLayers();
+  renderTree();
+  renderCasesList();
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  const pages = ['home','paths','composite','calculus','tree','cases'];
+  const idx = pages.indexOf(name);
+  if (idx >= 0) btns[idx].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function setLens(lens) {
+  currentLens = lens;
+  document.querySelectorAll('.lens-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  if (document.getElementById('page-paths').classList.contains('active')) renderPathGrid();
+  if (document.getElementById('page-detail').classList.contains('active')) {
+    const id = document.getElementById('detail-content').dataset.id;
+    if (id) showDetail(id);
+  }
+}
+
+function switchPathTab(type, btn) {
+  currentPathType = type;
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'attack', 'positive'); });
+  btn.classList.add('active', type);
+  renderPathGrid();
+}
+
+function renderPathGrid() {
+  if (!pathsData) return;
+  const items = currentPathType === 'attack' ? pathsData.attack : pathsData.positive;
+  const grid = document.getElementById('path-grid');
+  grid.innerHTML = items.map(p => {
+    const w = currentPathType === 'attack' ? p.weight : p.efficacy;
+    const dots = Array.from({length:5}, (_,i) =>
+      `<div class="weight-dot ${i < w ? 'filled ' + currentPathType : ''}"></div>`
+    ).join('');
+    return `<div class="path-card ${currentPathType}" onclick="showDetail('${p.id}')">
+      <div class="tag ${currentPathType}">${currentPathType === 'attack' ? '攻擊性' : '正錨'}</div>
+      <h4>${p.name_zh}</h4>
+      <div class="en">${p.name_en}</div>
+      <div class="excerpt">${p.mechanism}</div>
+      <div class="weight-bar">${dots}</div>
+    </div>`;
+  }).join('');
+}
+
+function showDetail(id) {
+  const all = [...(pathsData?.attack || []), ...(pathsData?.positive || [])];
+  const p = all.find(x => x.id === id);
+  if (!p) return;
+  showPage('detail');
+  const isAttack = p.type === 'attack';
+  const content = document.getElementById('detail-content');
+  content.dataset.id = id;
+
+  const signalKey = isAttack ? 'signals' : 'application';
+  const signalTitle = isAttack ? '辨識訊號' : '應用方式';
+  const signalClass = isAttack ? '' : 'positive';
+
+  const signals = isAttack
+    ? (p.signals || []).map(s => `<li>${s}</li>`).join('')
+    : `<li>${p.application}</li>`;
+
+  const lensContent = isAttack
+    ? (p.lens?.[currentLens] || '請切換右上角視角查看對應說明。')
+    : (p.calculus || '');
+
+  const counterSection = isAttack && p.counter ? `
+    <div class="detail-section">
+      <h3>對應正錨路徑</h3>
+      <div class="counter-tags">${p.counter.map(c =>
+        `<span class="counter-tag" onclick="findAndShowPositive('${c}')">${c}</span>`
+      ).join('')}</div>
+    </div>` : '';
+
+  const calcSection = !isAttack ? `
+    <div class="detail-section">
+      <h3>微積分視角</h3>
+      <div class="lens-box">${lensContent}</div>
+    </div>` : '';
+
+  const efficacyKey = isAttack ? p.weight : p.efficacy;
+  const efficacyLabel = isAttack ? '傷害權重' : '效益比';
+  const dots = Array.from({length:5}, (_,i) =>
+    `<div class="weight-dot ${i < efficacyKey ? 'filled ' + p.type : ''}"></div>`
+  ).join('');
+
+  content.innerHTML = `
+    <div class="detail-header">
+      <div class="tag ${p.type}">${isAttack ? '攻擊性路徑' : '正錨路徑'} · ${p.layer || ''}</div>
+      <h2>${p.name_zh}</h2>
+      <div class="en">${p.name_en}</div>
+      <div class="weight-bar" style="margin-top:12px">${dots}</div>
+      <div style="font-size:0.8rem;color:var(--text-dim);margin-top:4px">${efficacyLabel}</div>
+    </div>
+    <div class="detail-section">
+      <h3>核心機制</h3>
+      <p>${p.mechanism}</p>
+    </div>
+    <div class="detail-section">
+      <h3>${signalTitle}</h3>
+      <ul class="signals-list ${signalClass}">${signals}</ul>
+    </div>
+    ${counterSection}
+    ${calcSection}
+    ${isAttack ? `<div class="detail-section">
+      <h3>視角說明 — ${currentLens === 'victim' ? '受害者' : currentLens === 'bystander' ? '旁觀者' : '施暴者'}</h3>
+      <div class="lens-box">${lensContent}</div>
+    </div>` : ''}
+  `;
+}
+
+function findAndShowPositive(name) {
+  if (!pathsData) return;
+  const p = pathsData.positive.find(x => x.name_zh === name || x.id.includes(name));
+  if (p) { currentPathType = 'positive'; showDetail(p.id); }
+}
+
+function renderLayers() {
+  if (!pathsData) return;
+  const colors = ['l1','l2','l3','l4','l5'];
+  const container = document.getElementById('layers-container');
+  container.innerHTML = pathsData.composite_attack_layers.map((l, i) => `
+    <div class="layer-card ${colors[i]}">
+      <div class="layer-header">
+        <div class="layer-name">Layer ${l.layer}：${l.name}</div>
+        <div class="layer-weight">權重 ${'★'.repeat(l.weight)}${'☆'.repeat(5-l.weight)}</div>
+      </div>
+      <div class="layer-meta">
+        <span>功能：${l.function}</span>
+        <span>持續：${l.duration}</span>
+      </div>
+      <p style="font-size:0.9rem;margin-bottom:12px">${l.mechanism}</p>
+      <div class="lens-box" style="border-left-color:var(--accent-positive)">
+        <strong>反制：</strong>${l.counter}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTree() {
+  const content = document.getElementById('tree-content');
+  const breadcrumb = document.getElementById('tree-breadcrumb');
+
+  if (treePath.length === 0) {
+    const root = treeData.tree;
+    content.innerHTML = renderQuestion(root);
+    breadcrumb.innerHTML = '';
+    return;
+  }
+
+  const lastChoice = treePath[treePath.length - 1];
+  breadcrumb.innerHTML = treePath.map(c =>
+    `<div class="breadcrumb-item">${c.label}</div>`
+  ).join('<span style="color:var(--text-dim)">›</span>');
+
+  const nodeId = lastChoice.next;
+  const node = treeData.nodes[nodeId];
+  if (!node) { content.innerHTML = '<p>找不到節點</p>'; return; }
+
+  if (node.type === 'result') {
+    content.innerHTML = renderResult(node);
+  } else {
+    content.innerHTML = renderQuestion(node);
+  }
+}
+
+function renderQuestion(node) {
+  const options = node.options.map(opt =>
+    `<button class="tree-option" onclick="treeChoose('${opt.label}', '${opt.next}')">${opt.label}</button>`
+  ).join('');
+  return `<div class="tree-question">
+    <h3>${node.question}</h3>
+    <div class="tree-options">${options}</div>
+  </div>`;
+}
+
+function renderResult(node) {
+  const warning = node.warning ? `<div class="result-warning">⚠️ ${node.warning}</div>` : '';
+  const actions = (node.actions || []).map(a => `
+    <div class="action-item">
+      <h4>${a.action}</h4>
+      <div class="desc">${a.description}</div>
+      <div class="mech">機制：${a.mechanism}</div>
+      <span class="risk-badge risk-${a.risk}">風險：${a.risk}</span>
+    </div>
+  `).join('');
+  return `<div class="result-card">
+    <h3>${node.title}</h3>
+    <div style="color:var(--text-dim);font-size:0.85rem;margin-bottom:16px">根據你的情境，以下是建議方案</div>
+    ${warning}
+    ${actions}
+    <button class="reset-btn" onclick="resetTree()">↺ 重新評估情境</button>
+  </div>`;
+}
+
+function treeChoose(label, next) {
+  treePath.push({ label, next });
+  renderTree();
+}
+
+function resetTree() {
+  treePath = [];
+  renderTree();
+}
+
+function renderCasesList() {
+  if (!casesData) return;
+  const el = document.getElementById('cases-list');
+  el.innerHTML = casesData.cases.map(c => `
+    <div class="path-card" style="margin-bottom:14px" onclick="showCase('${c.id}')">
+      <div class="tag attack">情境模擬</div>
+      <h4>${c.title}</h4>
+      <div class="en" style="margin-bottom:10px">${c.tags.join(' · ')}</div>
+      <div class="excerpt">${c.summary}</div>
+    </div>
+  `).join('');
+}
+
+function showCase(id) {
+  if (!casesData) return;
+  const c = casesData.cases.find(x => x.id === id);
+  if (!c) return;
+  showPage('case-detail');
+  const el = document.getElementById('case-detail-content');
+
+  const characters = c.characters.map(ch => `
+    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:10px">
+      <div style="font-size:0.8rem;color:var(--text-dim);margin-bottom:4px">${ch.role}</div>
+      <div style="font-weight:700;margin-bottom:6px">${ch.label}</div>
+      <div style="font-size:0.88rem;color:var(--text-dim)">${ch.description}</div>
+    </div>
+  `).join('');
+
+  const timeline = c.timeline.map((t, i) => `
+    <div style="display:flex;gap:16px;margin-bottom:16px">
+      <div style="width:28px;height:28px;border-radius:50%;background:var(--accent-positive);color:#0f1117;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0">${i+1}</div>
+      <div>
+        <div style="font-weight:700;margin-bottom:4px">${t.phase}</div>
+        <div style="font-size:0.88rem;color:var(--text-dim)">${t.description}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const attackPaths = c.analysis.attack_paths_active.map(a =>
+    `<li style="padding:5px 0;border-bottom:1px solid var(--border);font-size:0.88rem;display:flex;gap:8px"><span style="color:var(--accent-attack)">→</span>${a}</li>`
+  ).join('');
+
+  const mistakes = c.analysis.bystander_mistakes.map(m =>
+    `<li style="padding:5px 0;border-bottom:1px solid var(--border);font-size:0.88rem;display:flex;gap:8px"><span style="color:#e07878">✗</span>${m}</li>`
+  ).join('');
+
+  const effective = c.analysis.effective_actions.map(a =>
+    `<li style="padding:5px 0;border-bottom:1px solid var(--border);font-size:0.88rem;display:flex;gap:8px"><span style="color:#52e052">✓</span>${a}</li>`
+  ).join('');
+
+  const playbook = c.tactical_playbook.map((p, i) => `
+    <div style="background:var(--bg3);border-radius:10px;padding:20px;margin-bottom:12px;border-left:3px solid var(--accent-positive)">
+      <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:4px">情境 ${i+1}</div>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:8px">${p.scenario}</div>
+      <div style="font-size:0.85rem;color:var(--text-dim);margin-bottom:10px">${p.situation}</div>
+      <div style="background:rgba(224,82,82,0.08);border-radius:6px;padding:10px;margin-bottom:10px;font-size:0.85rem">
+        <span style="color:#e07878;font-weight:600">陷阱：</span>${p.trap}
+      </div>
+      <div style="background:rgba(82,192,224,0.08);border-radius:6px;padding:10px;margin-bottom:10px;font-size:0.85rem">
+        <span style="color:var(--accent-positive);font-weight:600">最佳回應：</span>${p.best_response}
+      </div>
+      <div style="font-size:0.82rem;font-style:italic;color:var(--text-dim)">機制：${p.mechanism}</div>
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div style="margin-bottom:32px">
+      <div class="tag attack" style="margin-bottom:12px">情境模擬</div>
+      <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:8px">${c.title}</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        ${c.tags.map(t => `<span style="padding:2px 10px;background:var(--bg3);border-radius:20px;font-size:0.78rem;color:var(--text-dim)">${t}</span>`).join('')}
+      </div>
+      <p style="color:var(--text-dim);font-size:0.95rem">${c.summary}</p>
+    </div>
+
+    <div class="detail-section">
+      <h3>角色設定</h3>
+      ${characters}
+    </div>
+
+    <div class="detail-section">
+      <h3>事件時間線</h3>
+      ${timeline}
+    </div>
+
+    <div class="detail-section">
+      <h3>啟動的攻擊路徑</h3>
+      <ul class="signals-list">${attackPaths}</ul>
+    </div>
+
+    <div class="detail-section">
+      <h3>旁觀者的錯誤</h3>
+      <ul class="signals-list">${mistakes}</ul>
+    </div>
+
+    <div class="detail-section">
+      <h3>有效的行動</h3>
+      <ul class="signals-list positive">${effective}</ul>
+    </div>
+
+    <div class="detail-section">
+      <h3>核心洞察</h3>
+      <div class="lens-box">${c.analysis.key_insight}</div>
+    </div>
+
+    <div class="detail-section">
+      <h3>物理層反制的關鍵發現</h3>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--accent-positive)">${c.physical_layer_counter.finding}</div>
+      <p style="font-size:0.9rem;color:var(--text-dim)">${c.physical_layer_counter.reasoning}</p>
+    </div>
+
+    <div class="detail-section">
+      <h3>六種戰術手冊</h3>
+      ${playbook}
+    </div>
+  `;
+}
+
+function addAnchorEvent() {
+  anchorEvents++;
+  const container = document.getElementById('bar-container');
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  const h = Math.min(20 + anchorEvents * 4, 110);
+  bar.style.height = h + 'px';
+  container.appendChild(bar);
+  if (container.children.length > 24) container.removeChild(container.firstChild);
+  const area = anchorEvents * (anchorEvents + 1) / 2;
+  const dist = Math.max(0, Math.round((1 - anchorEvents / THRESHOLD) * 100));
+  document.getElementById('event-count').textContent = anchorEvents;
+  document.getElementById('total-area').textContent = area;
+  document.getElementById('distance').textContent = dist + '%';
+  if (anchorEvents >= THRESHOLD) {
+    document.getElementById('distance').textContent = '🎯 臨界點達到';
+    document.getElementById('distance').style.color = '#52e052';
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
+
+
+
