@@ -155,6 +155,20 @@
     .reset-btn { padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); cursor: pointer; margin-top: 16px; font-size: 0.9rem; transition: var(--transition); }
     .reset-btn:hover { border-color: var(--text-dim); color: var(--text); }
 
+    /* UNDERSTANDING PAGE */
+    .understanding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .u-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+    .u-card-answer { border-color: var(--accent-positive); }
+    .u-card-title { font-size: 1.05rem; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .u-label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .u-block { display: flex; flex-direction: column; }
+    .u-pre { font-family: inherit; background: var(--bg3, #111); border-left: 3px solid var(--border); padding: 12px 16px; margin: 0; font-size: 0.9rem; color: var(--text-dim); white-space: pre-wrap; line-height: 1.7; border-radius: 0 6px 6px 0; }
+    .u-body { font-size: 0.95rem; color: var(--text-dim); line-height: 1.7; }
+    .u-note { font-size: 0.9rem; color: var(--text-dim); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; line-height: 1.7; font-style: italic; }
+    .u-note-key { border-color: var(--accent-positive); color: var(--text); font-style: normal; }
+    .u-list { padding-left: 20px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .u-list li { font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; }
+
     /* RESPONSIVE */
     @media (max-width: 600px) {
       nav { overflow-x: auto; gap: 4px; }
@@ -162,6 +176,7 @@
       .page { padding: 20px 16px; }
       .lens-selector { display: none; }
       .calc-grid { grid-template-columns: 1fr; }
+      .understanding-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -173,6 +188,7 @@
   <button class="nav-btn" onclick="showPage('paths')">路徑地圖</button>
   <button class="nav-btn" onclick="showPage('composite')">複合攻擊</button>
   <button class="nav-btn" onclick="showPage('calculus')">微積分框架</button>
+  <button class="nav-btn" onclick="showPage('understanding')">理解機制</button>
   <button class="nav-btn" onclick="showPage('tree')">旁觀者決策樹</button>
   <button class="nav-btn" onclick="showPage('cases')">情境模擬</button>
   <div class="lens-selector">
@@ -367,7 +383,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const btns = document.querySelectorAll('.nav-btn');
-  const pages = ['home','paths','composite','calculus','tree','cases'];
+  const pages = ['home','paths','composite','calculus','understanding','tree','cases'];
   const idx = pages.indexOf(name);
   if (idx >= 0) btns[idx].classList.add('active');
   window.scrollTo(0, 0);
@@ -744,6 +760,84 @@ function addAnchorEvent() {
 
 loadData();
 </script>
+
+<!-- UNDERSTANDING -->
+<div id="page-understanding" class="page">
+  <div class="section-title">理解機制</div>
+  <div class="section-sub">你說的方向是對的，但有一個硬體限制需要說清楚</div>
+
+  <div class="understanding-grid">
+
+    <div class="u-card">
+      <div class="u-card-title">可以被理解克服的：次級痛苦</div>
+      <div class="u-block">
+        <div class="u-label">初級反應（無法攔截）</div>
+        <pre class="u-pre">杏仁核觸發 → 心跳加速、胸口緊、臉紅
+這發生在皮質介入之前，理解無法阻止它</pre>
+      </div>
+      <div class="u-block">
+        <div class="u-label">次級痛苦（可以被理解大幅削減）</div>
+        <pre class="u-pre">「為什麼我這樣反應」
+「我是不是很脆弱」
+「這件事說明了我什麼」
+「我應該已經沒事了」
+反覆回想 × 自我攻擊 × 退行</pre>
+      </div>
+      <div class="u-block">
+        <div class="u-label">理解能做到的</div>
+        <pre class="u-pre">縮短初級反應的持續時間
+切斷次級痛苦的觸發鏈
+把「痛苦」轉成「資訊」而非「證明我有問題」</pre>
+      </div>
+    </div>
+
+    <div class="u-card">
+      <div class="u-card-title">「每次都正確理解」是有效的——但有一個條件</div>
+      <div class="u-body">正確理解需要認知資源，而資源不是恆定的。</div>
+      <div class="u-block">
+        <div class="u-label">資源充足時</div>
+        <pre class="u-pre">杏仁核觸發 → 皮質介入 → 正確標籤 → 縮短反應 → 成為資料</pre>
+      </div>
+      <div class="u-block">
+        <div class="u-label">資源耗盡時（睡眠不足、累積壓力、已被觸發過很多次）</div>
+        <pre class="u-pre">杏仁核觸發 → 皮質介入能力下降 → 淹沒 → 退行
+這不是意志力的失敗，是硬體暫時離線</pre>
+      </div>
+      <div class="u-note">正確理解不是一個隨時可以執行的指令，而是一個需要維護底層硬體才能持續運行的程式。</div>
+    </div>
+
+    <div class="u-card">
+      <div class="u-card-title">但長期來看，你說的是真的</div>
+      <div class="u-body">每次正確處理，有兩件事在發生：</div>
+      <div class="u-block">
+        <div class="u-label">1. 前額葉與杏仁核的連結在強化</div>
+        <pre class="u-pre">→ 下次同樣觸發，恢復速度變快（神經可塑性）</pre>
+      </div>
+      <div class="u-block">
+        <div class="u-label">2. 你的模型在變大</div>
+        <pre class="u-pre">→ 遇到新情境，辨識和標籤的速度更快</pre>
+      </div>
+      <div class="u-block">
+        <div class="u-label">累積夠多次之後</div>
+        <pre class="u-pre">不是「不再被觸發」
+而是「被觸發後的恢復弧線變短，不再停留」</pre>
+      </div>
+    </div>
+
+    <div class="u-card u-card-answer">
+      <div class="u-card-title">所以完整的答案是</div>
+      <div class="u-body">不能完全克服初級反應，但可以做到：</div>
+      <ul class="u-list">
+        <li>次級痛苦不再自動觸發</li>
+        <li>退行的時間從幾天縮短到幾小時甚至更短</li>
+        <li>痛苦變成資料而不是自我攻擊的材料</li>
+        <li>長期下來，初級反應本身也會因為神經路徑的重塑而變弱</li>
+      </ul>
+      <div class="u-note u-note-key">唯一的前提：底層資源要夠用——休息、身體狀態、壓力累積量。這些不是配件，是這整個模型能不能跑起來的硬體條件。</div>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
 
