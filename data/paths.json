@@ -653,7 +653,121 @@
       "mechanism": "攝影機、通訊監看製造「全知感」，讓旁觀者自我審查，目標感到無處可逃，所有其它層次的效果被放大。",
       "counter": "資訊安全意識＋讓對話發生在確認安全的管道。"
     }
-  ]
+  ],
+  "meta_constants": {
+    "description": "六個不依個人、文化、情境而改變的心理機制常數。所有攻擊路徑與正錨路徑都是這些常數在現實中的具體展開形式。握有常數才能預測：這個人現在在哪一層、什麼觸發了他、他下一步會往哪個方向解決失調。",
+    "prediction_formula": "辨識層次 → 預測失調解決方向 → 選擇最小力量介入點",
+    "person_taxonomy": {
+      "type_A": "願意，但不知道怎麼辦（多數）→ 給模型是高槓桿介入",
+      "type_B": "系統已被 C1-C5 淹沒（少數）→ 需要外部結構介入，給模型無效",
+      "type_C": "利益方向本來就不同（極少數）→ 邊界才有效，刀子在此才需要考慮"
+    },
+    "constants": [
+      {
+        "id": "C1",
+        "name_zh": "身體反應先於意志決定",
+        "name_en": "Body Precedes Will",
+        "invariant": "在生死威脅下，杏仁核會在皮質介入之前觸發凍結／逃跑／戰鬥反應。這不是選擇，是硬體設計。",
+        "prediction_use": "任何高壓情境都會產生某種程度的凍結，差別只在程度與恢復速度。凍結不是懦弱的訊號，是神經系統正常運作的訊號。",
+        "exemplified_by": ["physical-threat-anchoring"],
+        "path_cluster": "身體層"
+      },
+      {
+        "id": "C2",
+        "name_zh": "認知失調不可持續，人一定會解決它",
+        "name_en": "Cognitive Dissonance Must Resolve",
+        "invariant": "同時持有兩個相互矛盾的信念是不可持續的狀態，系統必然選擇一個方向解決。",
+        "resolution_paths": {
+          "costly": "修正信念：更新世界模型（「原來對方不是好人」）",
+          "cheap": "壓制感知：保護既有關係或秩序（「一定是我想太多」）"
+        },
+        "prediction_use": "大多數人選壓制感知，因為更新世界模型的代價更高。在關係羞辱情境裡，受害者會先責怪自己。",
+        "exemplified_by": ["identification-with-aggressor", "trauma-bonding", "compensatory-thinking"],
+        "path_cluster": "認知層"
+      },
+      {
+        "id": "C3",
+        "name_zh": "羞辱感有時間偏移，真正衝擊在事後",
+        "name_en": "Humiliation Has Temporal Lag",
+        "invariant": "當下認知資源被事件本身佔據，無暇處理「我被羞辱了」這個命題。完整的感受在事後空下來時才到達，通常在24至72小時內。",
+        "prediction_use": "行為當下的反應不代表認知評估。事後的崩潰不是脆弱，是延遲的正常反應。不要用當下的平靜判斷一個人是否受到影響。",
+        "exemplified_by": ["intrusive-thinking", "trauma-reenactment"],
+        "path_cluster": "認知層"
+      },
+      {
+        "id": "C4",
+        "name_zh": "資訊不對稱產生焦慮，與實際威脅大小無關",
+        "name_en": "Information Asymmetry Generates Anxiety",
+        "invariant": "人腦無法在不知道規則的場裡保持平靜。焦慮是對不可控性的反應，不是對危險本身的反應。",
+        "prediction_use": "不知道對方掌握什麼，比知道對方掌握了壞消息更消耗。控制資訊流就是控制焦慮強度。可信度陷阱（每個事件都有合理解釋）是這個常數的極端應用。",
+        "exemplified_by": ["institutional-closed-control-loop", "triangulation", "environmental-control"],
+        "path_cluster": "認知層"
+      },
+      {
+        "id": "C5",
+        "name_zh": "意識到制約，不等於脫離制約",
+        "name_en": "Metacognition Does Not Override Conditioning",
+        "invariant": "後設認知（知道自己被觸發）與情緒反應（仍然被觸發）是兩套並行系統，不互相覆蓋。你可以同時知道「我的憤怒是被制約出來的」並且還是感到憤怒。",
+        "prediction_use": "「我理解了這個機制，所以不會再被影響」幾乎永遠是錯的。連反抗的衝動本身也可能是被制約的——不是說反抗是錯的，而是說連反抗的姿勢都值得檢驗。",
+        "exemplified_by": ["identification-with-aggressor", "trauma-reenactment", "learned-helplessness"],
+        "path_cluster": "後設層"
+      },
+      {
+        "id": "C6",
+        "name_zh": "行為的上限是認知模型的上限，不是意願的上限",
+        "name_en": "Behavior Is Bounded by Model, Not Will",
+        "invariant": "大多數人不是不願意做不同的事，而是沒有可用的模型知道怎麼做。缺的是工具，不是動機。",
+        "prediction_use": "給模型的槓桿高於施壓的槓桿（對類型 A 人群）。當給模型無效時，才需要考慮邊界或外部介入——這通常意味著對方屬於類型 B 或類型 C。",
+        "exemplified_by": ["learned-helplessness", "push-pull"],
+        "path_cluster": "後設層"
+      }
+    ],
+    "six_exemplar_paths": {
+      "description": "六條具體路徑，作為 C1-C6 常數的現實展開範例，分布於三個層次。",
+      "body_layer": [
+        {
+          "concept": "制約 × 怕死 × 凍結",
+          "mapped_path": "physical-threat-anchoring",
+          "primary_constant": "C1",
+          "note": "生存本能覆蓋選擇，身體先於意志，凍結是硬體反應不是性格缺陷"
+        }
+      ],
+      "cognitive_layer": [
+        {
+          "concept": "中間人攻擊",
+          "mapped_path": "pending:man-in-the-middle",
+          "primary_constant": "C4",
+          "note": "輸入已被改過但你不知道，決策基於假前提，羞辱感在事後發現時才到達（C3）"
+        },
+        {
+          "concept": "注意力劫持",
+          "mapped_path": "intrusive-thinking",
+          "primary_constant": "C3",
+          "note": "你看著自己被帶走卻停不下來，能看見卻無法控制比不知情更消耗"
+        },
+        {
+          "concept": "資訊不對稱",
+          "mapped_path": "institutional-closed-control-loop",
+          "primary_constant": "C4",
+          "note": "在不知道規則的場裡被評判，可信度陷阱讓求助成本極高"
+        }
+      ],
+      "meta_layer": [
+        {
+          "concept": "認知負荷消耗清單",
+          "mapped_path": "pending:cognitive-load-drain",
+          "primary_constant": "C2",
+          "note": "背叛/欺騙/指責/暴力各自觸發失調解決機制，累積耗損讓系統資源見底"
+        },
+        {
+          "concept": "制約的遞歸性",
+          "mapped_path": "identification-with-aggressor",
+          "primary_constant": "C5",
+          "note": "你的服從是制約的，你的反抗也可能是制約的，連「想要自由」這個念頭都值得檢驗"
+        }
+      ]
+    }
+  }
 }
 
 
