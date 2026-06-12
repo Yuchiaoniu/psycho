@@ -720,6 +720,28 @@
         "prediction_use": "給模型的槓桿高於施壓的槓桿（對類型 A 人群）。當給模型無效時，才需要考慮邊界或外部介入——這通常意味著對方屬於類型 B 或類型 C。",
         "exemplified_by": ["learned-helplessness", "push-pull"],
         "path_cluster": "後設層"
+      },
+      {
+        "id": "C7",
+        "name_zh": "環境封閉性決定行動工具集",
+        "name_en": "Environment Closure Determines Available Action Tools",
+        "invariant": "行動前必須先評估所處環境的封閉程度。語言在開放環境是解除模糊的工具；在封閉環境，語言打破模糊之後會被環境讀取，製造新的暴露點。同一個行動在兩種環境裡產生完全不同的後果。",
+        "prediction_use": "在採取任何主動行動前，先判斷環境類型。封閉環境優先使用無聲溫差；開放環境才進行語言交流，確認邊界。",
+        "decision_tree": {
+          "question": "語言在這個環境裡是否會被第三方讀取並製造後果？",
+          "closed": {
+            "condition": "是 — 封閉環境",
+            "consequence": "語言打破模糊 → 被環境讀取 → 製造新的暴露點",
+            "action": "無聲溫差：維持外部行為基線，保留內部溫度，透過身體質地而非語言傳遞訊號"
+          },
+          "open": {
+            "condition": "否 — 開放環境",
+            "consequence": "語言打破模糊 → 得到資訊 → 可以行動",
+            "action": "直接語言交流，確認邊界，把暗示迴圈關閉"
+          }
+        },
+        "exemplified_by": ["deniable-harassment", "institutional-closed-control-loop"],
+        "path_cluster": "後設層"
       }
     ],
     "six_exemplar_paths": {
