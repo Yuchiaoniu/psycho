@@ -187,6 +187,23 @@
     .u-list { padding-left: 20px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
     .u-list li { font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; }
 
+    /* SCENARIOS PAGE */
+    .scenario-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+    .scenario-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .scenario-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .scenario-badge.attack { background: rgba(229,57,53,0.12); color: var(--accent-attack); border: 1px solid rgba(229,57,53,0.25); }
+    .scenario-badge.attack:hover { background: rgba(229,57,53,0.22); }
+    .scenario-badge.positive { background: rgba(2,136,209,0.12); color: var(--accent-positive); border: 1px solid rgba(2,136,209,0.25); }
+    .scenario-badge.cognitive_drain { background: rgba(245,158,11,0.12); color: #d97706; border: 1px solid rgba(245,158,11,0.25); }
+    .scenario-badge.constant { background: rgba(84,110,154,0.12); color: var(--accent-neutral); border: 1px solid rgba(84,110,154,0.25); }
+    .scenario-const-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sc-const { padding: 2px 8px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; background: var(--bg3); color: var(--text-dim); border: 1px solid var(--border); }
+    .scenario-desc { font-size: 0.95rem; color: var(--text); line-height: 1.7; margin-bottom: 10px; }
+    .scenario-mech-toggle { font-size: 0.85rem; color: var(--accent-positive); cursor: pointer; user-select: none; margin-bottom: 8px; }
+    .scenario-mech-toggle:hover { text-decoration: underline; }
+    .scenario-mech-body { background: var(--bg3); border-left: 3px solid var(--border); border-radius: 0 8px 8px 0; padding: 14px 16px; font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
+    .scenario-note { margin-top: 10px; font-size: 0.88rem; color: var(--text-dim); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-style: italic; line-height: 1.6; }
+
     /* RESPONSIVE */
     @media (max-width: 600px) {
       nav { overflow-x: auto; gap: 4px; }
@@ -209,6 +226,7 @@
   <button class="nav-btn" onclick="showPage('understanding')">理解機制</button>
   <button class="nav-btn" onclick="showPage('tree')">旁觀者決策樹</button>
   <button class="nav-btn" onclick="showPage('cases')">情境模擬</button>
+  <button class="nav-btn" onclick="showPage('scenarios'); buildScenariosPage()">情境紀錄</button>
   <div class="lens-selector">
     <span class="lens-label">視角：</span>
     <button class="lens-btn active" onclick="setLens('victim')">受害者</button>
@@ -402,7 +420,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const btns = document.querySelectorAll('.nav-btn');
-  const pages = ['home','paths','composite','calculus','understanding','tree','cases'];
+  const pages = ['home','paths','composite','calculus','understanding','tree','cases','scenarios'];
   const idx = pages.indexOf(name);
   if (idx >= 0) btns[idx].classList.add('active');
   window.scrollTo(0, 0);
@@ -813,8 +831,69 @@ function addAnchorEvent() {
   }
 }
 
+function buildScenariosPage() {
+  if (!pathsData) { setTimeout(buildScenariosPage, 300); return; }
+  const all = [];
+  for (const section of ['attack', 'positive', 'cognitive_drain']) {
+    for (const p of pathsData[section] || []) {
+      for (const s of p.scenarios || []) {
+        all.push({ ...s, path_id: p.id, path_name: p.name_zh, path_type: p.type || section });
+      }
+    }
+  }
+  for (const c of pathsData.meta_constants?.constants || []) {
+    for (const s of c.scenarios || []) {
+      all.push({ ...s, path_id: c.id, path_name: c.id + ' ' + c.name_zh, path_type: 'constant' });
+    }
+  }
+  const countEl = document.getElementById('scenario-count');
+  if (countEl) countEl.textContent = '共 ' + all.length + ' 條情境紀錄';
+  const container = document.getElementById('scenario-list');
+  if (!container) return;
+  container.innerHTML = all.map(function(s, i) {
+    const tc = s.path_type === 'attack' ? 'attack'
+      : s.path_type === 'cognitive_drain' ? 'cognitive_drain'
+      : s.path_type === 'constant' ? 'constant' : 'positive';
+    const consts = (s.primary_constants || []).map(function(c) {
+      return '<span class="sc-const">' + c + '</span>';
+    }).join('');
+    return '<div class="scenario-card">'
+      + '<div class="scenario-meta">'
+      + '<span class="scenario-badge ' + tc + '" onclick="showDetail(\'' + s.path_id + '\')">' + s.path_name + '</span>'
+      + '<div class="scenario-const-row">' + consts + '</div>'
+      + '</div>'
+      + '<div class="scenario-desc">' + s.description + '</div>'
+      + '<div class="scenario-mech-toggle" onclick="toggleScenarioMech(' + i + ')">▶ 展開機制分析</div>'
+      + '<div id="sc-mech-' + i + '" style="display:none">'
+      + '<div class="scenario-mech-body">' + s.mechanism + '</div>'
+      + (s.note ? '<div class="scenario-note">' + s.note + '</div>' : '')
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleScenarioMech(i) {
+  const el = document.getElementById('sc-mech-' + i);
+  const toggle = el.previousElementSibling;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    toggle.textContent = '▼ 收起機制分析';
+  } else {
+    el.style.display = 'none';
+    toggle.textContent = '▶ 展開機制分析';
+  }
+}
+
 loadData();
 </script>
+
+<!-- SCENARIOS -->
+<div id="page-scenarios" class="page">
+  <div class="section-title">情境紀錄</div>
+  <div class="section-sub">從真實情境反推的操控結構分析，點選路徑名稱可跳至該路徑說明</div>
+  <div id="scenario-count" style="font-size:0.88rem;color:var(--text-dim);margin:8px 0 24px;"></div>
+  <div id="scenario-list"></div>
+</div>
 
 <!-- UNDERSTANDING -->
 <div id="page-understanding" class="page">
