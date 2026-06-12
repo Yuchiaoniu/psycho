@@ -71,6 +71,11 @@
     .weight-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
     .weight-dot.filled.attack { background: var(--accent-attack); }
     .weight-dot.filled.positive { background: var(--accent-positive); }
+    .weight-dot.filled.cognitive_drain { background: #d97706; }
+    .tag.cognitive_drain { background: rgba(245,158,11,0.15); color: #d97706; border: 1px solid rgba(245,158,11,0.3); }
+    .tab-btn.active.cognitive_drain { background: rgba(245,158,11,0.15); border-color: #d97706; color: #d97706; }
+    .path-card.cognitive_drain:hover { border-color: #d97706; }
+    .signals-list.drain li::before { color: #d97706; }
 
     /* PATH DETAIL */
     .back-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); cursor: pointer; margin-bottom: 24px; font-size: 0.9rem; transition: var(--transition); }
@@ -255,8 +260,9 @@
   <div class="section-title">路徑地圖</div>
   <div class="section-sub">選擇視角（右上角）可切換每條路徑的說明框架</div>
   <div class="path-tabs">
-    <button class="tab-btn active attack" onclick="switchPathTab('attack', this)">攻擊性路徑 (11)</button>
-    <button class="tab-btn" onclick="switchPathTab('positive', this)">正錨路徑 (26)</button>
+    <button class="tab-btn active attack" onclick="switchPathTab('attack', this)">攻擊性路徑 (16)</button>
+    <button class="tab-btn" onclick="switchPathTab('positive', this)">正錨路徑 (28)</button>
+    <button class="tab-btn" onclick="switchPathTab('cognitive_drain', this)">認知消耗路徑 (10)</button>
   </div>
   <div id="path-grid" class="path-grid"></div>
 </div>
@@ -415,22 +421,23 @@ function setLens(lens) {
 
 function switchPathTab(type, btn) {
   currentPathType = type;
-  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'attack', 'positive'); });
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'attack', 'positive', 'cognitive_drain'); });
   btn.classList.add('active', type);
   renderPathGrid();
 }
 
 function renderPathGrid() {
   if (!pathsData) return;
-  const items = currentPathType === 'attack' ? pathsData.attack : pathsData.positive;
+  const items = currentPathType === 'cognitive_drain' ? pathsData.cognitive_drain
+    : currentPathType === 'attack' ? pathsData.attack : pathsData.positive;
   const grid = document.getElementById('path-grid');
   grid.innerHTML = items.map(p => {
-    const w = currentPathType === 'attack' ? p.weight : p.efficacy;
+    const w = currentPathType === 'positive' ? p.efficacy : p.weight;
     const dots = Array.from({length:5}, (_,i) =>
       `<div class="weight-dot ${i < w ? 'filled ' + currentPathType : ''}"></div>`
     ).join('');
     return `<div class="path-card ${currentPathType}" onclick="showDetail('${p.id}')">
-      <div class="tag ${currentPathType}">${currentPathType === 'attack' ? '攻擊性' : '正錨'}</div>
+      <div class="tag ${currentPathType}">${currentPathType === 'attack' ? '攻擊性' : currentPathType === 'cognitive_drain' ? '認知消耗' : '正錨'}</div>
       <h4>${p.name_zh}</h4>
       <div class="en">${p.name_en}</div>
       <div class="excerpt">${p.mechanism}</div>
@@ -440,24 +447,26 @@ function renderPathGrid() {
 }
 
 function showDetail(id) {
-  const all = [...(pathsData?.attack || []), ...(pathsData?.positive || [])];
+  const all = [...(pathsData?.attack || []), ...(pathsData?.positive || []), ...(pathsData?.cognitive_drain || [])];
   const p = all.find(x => x.id === id);
   if (!p) return;
   showPage('detail');
   const isAttack = p.type === 'attack';
+  const isCognitiveDrain = p.type === 'cognitive_drain';
   const content = document.getElementById('detail-content');
   content.dataset.id = id;
 
-  const signalKey = isAttack ? 'signals' : 'application';
-  const signalTitle = isAttack ? '辨識訊號' : '應用方式';
-  const signalClass = isAttack ? '' : 'positive';
+  const signalTitle = (isAttack || isCognitiveDrain) ? '辨識訊號' : '應用方式';
+  const signalClass = (isAttack || isCognitiveDrain) ? '' : 'positive';
 
-  const signals = isAttack
+  const signals = (isAttack || isCognitiveDrain)
     ? (p.signals || []).map(s => `<li>${s}</li>`).join('')
     : `<li>${p.application}</li>`;
 
   const lensContent = isAttack
     ? (p.lens?.[currentLens] || '請切換右上角視角查看對應說明。')
+    : isCognitiveDrain
+    ? (currentLens === 'bystander' ? (p.lens?.bystander || '請切換右上角視角查看對應說明。') : (p.lens?.target || '請切換右上角視角查看對應說明。'))
     : (p.calculus || '');
 
   const deepAnalysisSection = (isAttack && p.deep_analysis) ? (() => {
@@ -499,9 +508,13 @@ function showDetail(id) {
       <div class="counter-tags">${p.counter.map(c =>
         `<span class="counter-tag" onclick="findAndShowPositive('${c}')">${c}</span>`
       ).join('')}</div>
+    </div>` : isCognitiveDrain && p.counter ? `
+    <div class="detail-section">
+      <h3>消耗對應策略</h3>
+      <ul class="signals-list drain">${p.counter.map(c => `<li>${c}</li>`).join('')}</ul>
     </div>` : '';
 
-  const calcSection = !isAttack ? `
+  const calcSection = (!isAttack && !isCognitiveDrain) ? `
     <div class="detail-section">
       <h3>微積分視角</h3>
       <div class="lens-box">${lensContent}</div>
@@ -534,15 +547,15 @@ function showDetail(id) {
       <div class="lens-box">${p.constant_chain}</div>
     </div>` : '';
 
-  const efficacyKey = isAttack ? p.weight : p.efficacy;
-  const efficacyLabel = isAttack ? '傷害權重' : '效益比';
+  const efficacyKey = (isAttack || isCognitiveDrain) ? p.weight : p.efficacy;
+  const efficacyLabel = isAttack ? '傷害權重' : isCognitiveDrain ? '消耗強度' : '效益比';
   const dots = Array.from({length:5}, (_,i) =>
     `<div class="weight-dot ${i < efficacyKey ? 'filled ' + p.type : ''}"></div>`
   ).join('');
 
   content.innerHTML = `
     <div class="detail-header">
-      <div class="tag ${p.type}">${isAttack ? '攻擊性路徑' : '正錨路徑'} · ${p.layer || ''}</div>
+      <div class="tag ${p.type}">${isAttack ? '攻擊性路徑' : isCognitiveDrain ? '認知消耗路徑' : '正錨路徑'} · ${p.layer || ''}</div>
       <h2>${p.name_zh}</h2>
       <div class="en">${p.name_en}</div>
       <div class="weight-bar" style="margin-top:12px">${dots}</div>
@@ -560,8 +573,8 @@ function showDetail(id) {
     ${constantChainSection}
     ${dualAudienceSection}
     ${calcSection}
-    ${isAttack ? `<div class="detail-section">
-      <h3>視角說明 — ${currentLens === 'victim' ? '受害者' : currentLens === 'bystander' ? '旁觀者' : '施暴者'}</h3>
+    ${(isAttack || isCognitiveDrain) ? `<div class="detail-section">
+      <h3>視角說明 — ${currentLens === 'bystander' ? '旁觀者' : isCognitiveDrain ? '目標' : currentLens === 'victim' ? '受害者' : '施暴者'}</h3>
       <div class="lens-box">${lensContent}</div>
     </div>` : ''}
     ${deepAnalysisSection}
