@@ -75,6 +75,11 @@
     .tag.cognitive_drain { background: rgba(245,158,11,0.15); color: #d97706; border: 1px solid rgba(245,158,11,0.3); }
     .tab-btn.active.cognitive_drain { background: rgba(245,158,11,0.15); border-color: #d97706; color: #d97706; }
     .path-card.cognitive_drain:hover { border-color: #d97706; }
+    .weight-dot.filled.humorous { background: #0d9488; }
+    .tag.humorous { background: rgba(13,148,136,0.15); color: #0d9488; border: 1px solid rgba(13,148,136,0.3); }
+    .tab-btn.active.humorous { background: rgba(13,148,136,0.15); border-color: #0d9488; color: #0d9488; }
+    .path-card.humorous:hover { border-color: #0d9488; }
+    .scenario-badge.humorous { background: rgba(13,148,136,0.12); color: #0d9488; border: 1px solid rgba(13,148,136,0.25); }
     .signals-list.drain li::before { color: #d97706; }
 
     /* PATH DETAIL */
@@ -281,6 +286,7 @@
     <button class="tab-btn active attack" onclick="switchPathTab('attack', this)">攻擊性路徑 (16)</button>
     <button class="tab-btn" onclick="switchPathTab('positive', this)">正錨路徑 (28)</button>
     <button class="tab-btn" onclick="switchPathTab('cognitive_drain', this)">認知消耗路徑 (10)</button>
+    <button class="tab-btn" onclick="switchPathTab('humorous', this)">幽默路徑 (1)</button>
   </div>
   <div id="path-grid" class="path-grid"></div>
 </div>
@@ -439,7 +445,7 @@ function setLens(lens) {
 
 function switchPathTab(type, btn) {
   currentPathType = type;
-  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'attack', 'positive', 'cognitive_drain'); });
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active', 'attack', 'positive', 'cognitive_drain', 'humorous'); });
   btn.classList.add('active', type);
   renderPathGrid();
 }
@@ -447,6 +453,7 @@ function switchPathTab(type, btn) {
 function renderPathGrid() {
   if (!pathsData) return;
   const items = currentPathType === 'cognitive_drain' ? pathsData.cognitive_drain
+    : currentPathType === 'humorous' ? (pathsData.humorous || [])
     : currentPathType === 'attack' ? pathsData.attack : pathsData.positive;
   const grid = document.getElementById('path-grid');
   grid.innerHTML = items.map(p => {
@@ -455,7 +462,7 @@ function renderPathGrid() {
       `<div class="weight-dot ${i < w ? 'filled ' + currentPathType : ''}"></div>`
     ).join('');
     return `<div class="path-card ${currentPathType}" onclick="showDetail('${p.id}')">
-      <div class="tag ${currentPathType}">${currentPathType === 'attack' ? '攻擊性' : currentPathType === 'cognitive_drain' ? '認知消耗' : '正錨'}</div>
+      <div class="tag ${currentPathType}">${currentPathType === 'attack' ? '攻擊性' : currentPathType === 'cognitive_drain' ? '認知消耗' : currentPathType === 'humorous' ? '幽默' : '正錨'}</div>
       <h4>${p.name_zh}</h4>
       <div class="en">${p.name_en}</div>
       <div class="excerpt">${p.mechanism}</div>
@@ -465,23 +472,24 @@ function renderPathGrid() {
 }
 
 function showDetail(id) {
-  const all = [...(pathsData?.attack || []), ...(pathsData?.positive || []), ...(pathsData?.cognitive_drain || [])];
+  const all = [...(pathsData?.attack || []), ...(pathsData?.positive || []), ...(pathsData?.cognitive_drain || []), ...(pathsData?.humorous || [])];
   const p = all.find(x => x.id === id);
   if (!p) return;
   showPage('detail');
   const isAttack = p.type === 'attack';
   const isCognitiveDrain = p.type === 'cognitive_drain';
+  const isHumorous = p.type === 'humorous';
   const content = document.getElementById('detail-content');
   content.dataset.id = id;
 
-  const signalTitle = (isAttack || isCognitiveDrain) ? '辨識訊號' : '應用方式';
-  const signalClass = (isAttack || isCognitiveDrain) ? '' : 'positive';
+  const signalTitle = (isAttack || isCognitiveDrain || isHumorous) ? '辨識訊號' : '應用方式';
+  const signalClass = (isAttack || isCognitiveDrain || isHumorous) ? '' : 'positive';
 
-  const signals = (isAttack || isCognitiveDrain)
+  const signals = (isAttack || isCognitiveDrain || isHumorous)
     ? (p.signals || []).map(s => `<li>${s}</li>`).join('')
     : `<li>${p.application}</li>`;
 
-  const lensContent = isAttack
+  const lensContent = (isAttack || isHumorous)
     ? (p.lens?.[currentLens] || '請切換右上角視角查看對應說明。')
     : isCognitiveDrain
     ? (currentLens === 'bystander' ? (p.lens?.bystander || '請切換右上角視角查看對應說明。') : (p.lens?.target || '請切換右上角視角查看對應說明。'))
@@ -526,13 +534,13 @@ function showDetail(id) {
       <div class="counter-tags">${p.counter.map(c =>
         `<span class="counter-tag" onclick="findAndShowPositive('${c}')">${c}</span>`
       ).join('')}</div>
-    </div>` : isCognitiveDrain && p.counter ? `
+    </div>` : (isCognitiveDrain || isHumorous) && p.counter ? `
     <div class="detail-section">
-      <h3>消耗對應策略</h3>
+      <h3>${isHumorous ? '說破的方式' : '消耗對應策略'}</h3>
       <ul class="signals-list drain">${p.counter.map(c => `<li>${c}</li>`).join('')}</ul>
     </div>` : '';
 
-  const calcSection = (!isAttack && !isCognitiveDrain) ? `
+  const calcSection = (!isAttack && !isCognitiveDrain && !isHumorous) ? `
     <div class="detail-section">
       <h3>微積分視角</h3>
       <div class="lens-box">${lensContent}</div>
@@ -565,15 +573,15 @@ function showDetail(id) {
       <div class="lens-box">${p.constant_chain}</div>
     </div>` : '';
 
-  const efficacyKey = (isAttack || isCognitiveDrain) ? p.weight : p.efficacy;
-  const efficacyLabel = isAttack ? '傷害權重' : isCognitiveDrain ? '消耗強度' : '效益比';
+  const efficacyKey = (isAttack || isCognitiveDrain || isHumorous) ? p.weight : p.efficacy;
+  const efficacyLabel = isAttack ? '傷害權重' : isCognitiveDrain ? '消耗強度' : isHumorous ? '幽默強度' : '效益比';
   const dots = Array.from({length:5}, (_,i) =>
     `<div class="weight-dot ${i < efficacyKey ? 'filled ' + p.type : ''}"></div>`
   ).join('');
 
   content.innerHTML = `
     <div class="detail-header">
-      <div class="tag ${p.type}">${isAttack ? '攻擊性路徑' : isCognitiveDrain ? '認知消耗路徑' : '正錨路徑'} · ${p.layer || ''}</div>
+      <div class="tag ${p.type}">${isAttack ? '攻擊性路徑' : isCognitiveDrain ? '認知消耗路徑' : isHumorous ? '幽默路徑' : '正錨路徑'} · ${p.layer || ''}</div>
       <h2>${p.name_zh}</h2>
       <div class="en">${p.name_en}</div>
       <div class="weight-bar" style="margin-top:12px">${dots}</div>
@@ -591,8 +599,8 @@ function showDetail(id) {
     ${constantChainSection}
     ${dualAudienceSection}
     ${calcSection}
-    ${(isAttack || isCognitiveDrain) ? `<div class="detail-section">
-      <h3>視角說明 — ${currentLens === 'bystander' ? '旁觀者' : isCognitiveDrain ? '目標' : currentLens === 'victim' ? '受害者' : '施暴者'}</h3>
+    ${(isAttack || isCognitiveDrain || isHumorous) ? `<div class="detail-section">
+      <h3>視角說明 — ${currentLens === 'bystander' ? '旁觀者' : isCognitiveDrain ? '目標' : currentLens === 'victim' ? '受害者' : '操作者'}</h3>
       <div class="lens-box">${lensContent}</div>
     </div>` : ''}
     ${deepAnalysisSection}
@@ -834,7 +842,7 @@ function addAnchorEvent() {
 function buildScenariosPage() {
   if (!pathsData) { setTimeout(buildScenariosPage, 300); return; }
   const all = [];
-  for (const section of ['attack', 'positive', 'cognitive_drain']) {
+  for (const section of ['attack', 'positive', 'cognitive_drain', 'humorous']) {
     for (const p of pathsData[section] || []) {
       for (const s of p.scenarios || []) {
         all.push({ ...s, path_id: p.id, path_name: p.name_zh, path_type: p.type || section });
