@@ -980,7 +980,8 @@
         "exemplified_by": [
           "physical-threat-anchoring"
         ],
-        "path_cluster": "身體層"
+        "path_cluster": "身體層",
+        "layer": "hardware"
       },
       {
         "id": "C2",
@@ -997,7 +998,8 @@
           "trauma-bonding",
           "compensatory-thinking"
         ],
-        "path_cluster": "認知層"
+        "path_cluster": "認知層",
+        "layer": "cognitive"
       },
       {
         "id": "C3",
@@ -1009,7 +1011,8 @@
           "intrusive-thinking",
           "trauma-reenactment"
         ],
-        "path_cluster": "認知層"
+        "path_cluster": "認知層",
+        "layer": "cognitive"
       },
       {
         "id": "C4",
@@ -1022,7 +1025,8 @@
           "triangulation",
           "environmental-control"
         ],
-        "path_cluster": "認知層"
+        "path_cluster": "認知層",
+        "layer": "cognitive"
       },
       {
         "id": "C5",
@@ -1035,7 +1039,8 @@
           "trauma-reenactment",
           "learned-helplessness"
         ],
-        "path_cluster": "後設層"
+        "path_cluster": "後設層",
+        "layer": "cognitive"
       },
       {
         "id": "C6",
@@ -1047,7 +1052,8 @@
           "learned-helplessness",
           "push-pull"
         ],
-        "path_cluster": "後設層"
+        "path_cluster": "後設層",
+        "layer": "behavioral"
       },
       {
         "id": "C7",
@@ -1084,7 +1090,8 @@
           "deniable-harassment",
           "institutional-closed-control-loop"
         ],
-        "path_cluster": "後設層"
+        "path_cluster": "後設層",
+        "layer": "behavioral"
       },
       {
         "id": "C8",
@@ -1104,7 +1111,8 @@
           "institutional-closed-control-loop",
           "multi-audience-theatre"
         ],
-        "path_cluster": "後設層"
+        "path_cluster": "後設層",
+        "layer": "behavioral"
       },
       {
         "id": "C9",
@@ -1133,7 +1141,8 @@
             "mechanism": "心理抗拒（Brehm 1966）：選擇自由被限制時，大腦自動產生恢復自由的動機，被禁止的對象變得更有吸引力。蔡加尼克效應讓「未解決」的迴路永遠開著；C9在這個迴路上每次激活都在降低下次門檻。羅密歐與朱麗葉效應（Driscoll 1972）：外部阻礙讓渴望加深而非削弱。",
             "signal": "明明試圖壓制卻更頻繁出現在腦海；任何別的事都是「沒在想他」而非真的沒在想。"
           }
-        ]
+        ],
+        "layer": "cognitive"
       }
     ],
     "six_exemplar_paths": {

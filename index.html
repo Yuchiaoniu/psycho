@@ -218,6 +218,25 @@
       .calc-grid { grid-template-columns: 1fr; }
       .understanding-grid { grid-template-columns: 1fr; }
     }
+    /* Mental Model */
+    .mm-layer { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 24px; overflow: hidden; }
+    .mm-layer-header { padding: 16px 20px; }
+    .mm-layer-label { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .mm-layer-sub { font-size: 0.83rem; color: var(--text-dim); }
+    .mm-const-list { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .mm-const-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+    .mm-const-header { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .mm-const-id { font-size: 0.78rem; font-weight: 700; background: var(--bg3); padding: 2px 8px; border-radius: 12px; color: var(--text-dim); flex-shrink: 0; }
+    .mm-const-name { font-weight: 600; font-size: 0.92rem; flex: 1; }
+    .mm-const-arrow { font-size: 0.75rem; color: var(--text-dim); }
+    .mm-const-inv { font-size: 0.82rem; color: var(--text-dim); margin-top: 8px; line-height: 1.6; }
+    .mm-scenarios { margin-top: 12px; }
+    .mm-scenario { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+    .mm-sc-desc { font-size: 0.88rem; line-height: 1.65; margin-bottom: 8px; }
+    .mm-sc-toggle { font-size: 0.79rem; color: var(--accent-neutral); cursor: pointer; padding: 2px 0; }
+    .mm-sc-body { font-size: 0.82rem; color: var(--text-dim); margin-top: 8px; line-height: 1.65; }
+    .mm-sc-signal { color: #22c55e; font-size: 0.8rem; margin-top: 6px; }
+    .mm-sc-note { color: var(--text-dim); font-size: 0.8rem; margin-top: 6px; border-left: 3px solid var(--border); padding-left: 10px; }
   </style>
 </head>
 <body>
@@ -232,6 +251,7 @@
   <button class="nav-btn" onclick="showPage('tree')">旁觀者決策樹</button>
   <button class="nav-btn" onclick="showPage('cases')">情境模擬</button>
   <button class="nav-btn" onclick="showPage('scenarios'); buildScenariosPage()">情境紀錄</button>
+  <button class="nav-btn" onclick="showPage('mental-model'); buildMentalModel()">心智模型</button>
   <div class="lens-selector">
     <span class="lens-label">視角：</span>
     <button class="lens-btn active" onclick="setLens('victim')">受害者</button>
@@ -892,6 +912,69 @@ function toggleScenarioMech(i) {
   }
 }
 
+function buildMentalModel() {
+  if (!pathsData) { setTimeout(buildMentalModel, 300); return; }
+  const LAYERS = [
+    { id: 'hardware',   label: '硬體層', sub: '完全不可控——觸發發生在皮質介入之前', color: '#dc2626' },
+    { id: 'cognitive',  label: '認知層', sub: '部分可控——需要認知資源才能介入；資源耗盡時退回硬體層', color: '#7c3aed' },
+    { id: 'behavioral', label: '行為層', sub: '可控——但上限由當前認知模型決定，模型不擴張則上限不動', color: '#0891b2' },
+  ];
+  const constants = pathsData.meta_constants?.constants || [];
+  let html = '';
+  for (const layer of LAYERS) {
+    const layerConsts = constants.filter(function(c) { return c.layer === layer.id; });
+    let constsHtml = '';
+    for (const c of layerConsts) {
+      const cKey = 'mm-' + c.id;
+      let scenariosHtml = '';
+      for (let si = 0; si < (c.scenarios || []).length; si++) {
+        const s = c.scenarios[si];
+        const sKey = cKey + '-s' + si;
+        scenariosHtml += '<div class="mm-scenario">'
+          + '<div class="mm-sc-desc">' + s.description + '</div>'
+          + '<div class="mm-sc-toggle" onclick="toggleMmSc(\'' + sKey + '\', this)">▶ 展開機制</div>'
+          + '<div id="' + sKey + '" style="display:none" class="mm-sc-body">'
+          + (s.mechanism || '')
+          + (s.signal ? '<div class="mm-sc-signal">訊號：' + s.signal + '</div>' : '')
+          + (s.note ? '<div class="mm-sc-note">' + s.note + '</div>' : '')
+          + '</div></div>';
+      }
+      constsHtml += '<div class="mm-const-card">'
+        + '<div class="mm-const-header" onclick="toggleMmConst(\'' + cKey + '\', this)">'
+        + '<span class="mm-const-id">' + c.id + '</span>'
+        + '<span class="mm-const-name">' + c.name_zh + '</span>'
+        + '<span class="mm-const-arrow">▶</span>'
+        + '</div>'
+        + '<div class="mm-const-inv">' + c.invariant + '</div>'
+        + '<div id="' + cKey + '" class="mm-scenarios" style="display:none">' + scenariosHtml + '</div>'
+        + '</div>';
+    }
+    html += '<div class="mm-layer" style="border-color:' + layer.color + '20">'
+      + '<div class="mm-layer-header" style="background:' + layer.color + '12;border-left:4px solid ' + layer.color + '">'
+      + '<div class="mm-layer-label" style="color:' + layer.color + '">' + layer.label + '</div>'
+      + '<div class="mm-layer-sub">' + layer.sub + '</div>'
+      + '</div>'
+      + '<div class="mm-const-list">' + constsHtml + '</div>'
+      + '</div>';
+  }
+  document.getElementById('mental-model-content').innerHTML = html;
+}
+
+function toggleMmConst(id, header) {
+  const el = document.getElementById(id);
+  const arrow = header.querySelector('.mm-const-arrow');
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▼' : '▶';
+}
+
+function toggleMmSc(id, btn) {
+  const el = document.getElementById(id);
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '▼ 收起機制' : '▶ 展開機制';
+}
+
 loadData();
 </script>
 
@@ -901,6 +984,13 @@ loadData();
   <div class="section-sub">從真實情境反推的操控結構分析，點選路徑名稱可跳至該路徑說明</div>
   <div id="scenario-count" style="font-size:0.88rem;color:var(--text-dim);margin:8px 0 24px;"></div>
   <div id="scenario-list"></div>
+</div>
+
+<!-- MENTAL MODEL -->
+<div id="page-mental-model" class="page">
+  <div class="section-title">心智模型</div>
+  <div class="section-sub">三層架構——情境歸屬於常數，常數歸屬於層次。點選常數展開情境，點選情境展開機制。</div>
+  <div id="mental-model-content"></div>
 </div>
 
 <!-- UNDERSTANDING -->
