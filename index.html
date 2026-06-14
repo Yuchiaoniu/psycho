@@ -237,25 +237,30 @@
     .mm-sc-body { font-size: 0.82rem; color: var(--text-dim); margin-top: 8px; line-height: 1.65; }
     .mm-sc-signal { color: #22c55e; font-size: 0.8rem; margin-top: 6px; }
     .mm-sc-note { color: var(--text-dim); font-size: 0.8rem; margin-top: 6px; border-left: 3px solid var(--border); padding-left: 10px; }
-    /* ── Behavior Patterns ── */
-    .bp-card { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
-    .bp-name { font-weight: 700; font-size: 0.88rem; color: #f59e0b; margin-bottom: 0; }
-    .bp-observable { padding: 14px 20px; font-size: 0.95rem; line-height: 1.7; color: var(--text-main); }
-    .bp-observable-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 5px; }
-    .bp-expand-btn { width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border); padding: 10px 20px; font-size: 0.82rem; color: var(--text-dim); cursor: pointer; }
-    .bp-expand-btn:hover { background: var(--bg2); }
-    .bp-details { padding: 16px 20px; display: none; border-top: 1px solid var(--border); }
-    .bp-section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 8px; margin-top: 16px; }
-    .bp-section-label:first-child { margin-top: 0; }
-    .bp-matrix { background: var(--bg2); border-radius: 8px; overflow: hidden; }
-    .bp-matrix-row { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-    .bp-matrix-row:last-child { border-bottom: none; }
-    .bp-axis-label { font-size: 0.75rem; font-weight: 700; color: #f59e0b; margin-bottom: 4px; }
-    .bp-axis-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
-    .bp-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .bp-tag-c { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; }
-    .bp-tag-p { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; }
-    .bp-trap { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 12px 14px; font-size: 0.83rem; color: var(--text-dim); line-height: 1.65; }
+    /* ── Behavior Matrix ── */
+    .bm-axis { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .bm-axis:last-child { border-bottom: none; }
+    .bm-axis-meta { min-width: 100px; flex-shrink: 0; }
+    .bm-axis-label { font-size: 0.78rem; font-weight: 700; color: #f59e0b; margin-bottom: 3px; }
+    .bm-axis-q { font-size: 0.74rem; color: var(--text-dim); line-height: 1.4; }
+    .bm-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+    .bm-opt { padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); color: var(--text-dim); cursor: pointer; font-size: 0.82rem; text-align: left; transition: border-color 0.15s, color 0.15s; }
+    .bm-opt:hover { border-color: #f59e0b88; color: var(--text-main); }
+    .bm-opt.sel { background: rgba(245,158,11,0.12); border-color: #f59e0b; color: #f59e0b; font-weight: 700; }
+    .bm-opt-desc { display: block; font-size: 0.7rem; font-weight: 400; color: var(--text-dim); margin-top: 2px; }
+    .bm-opt.sel .bm-opt-desc { color: #f59e0b99; }
+    .bm-result { margin-top: 24px; }
+    .bm-result-empty { color: var(--text-dim); font-size: 0.85rem; text-align: center; padding: 24px; background: var(--bg2); border-radius: var(--radius); }
+    .bm-rule { padding: 11px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 0.83rem; line-height: 1.65; border-left: 3px solid transparent; }
+    .bm-rule strong { display: block; margin-bottom: 3px; font-size: 0.8rem; }
+    .bm-rule.danger { background: rgba(239,68,68,0.1); border-color: #ef4444; color: var(--text-main); }
+    .bm-rule.danger strong { color: #f87171; }
+    .bm-rule.caution { background: rgba(245,158,11,0.1); border-color: #f59e0b; color: var(--text-main); }
+    .bm-rule.caution strong { color: #fbbf24; }
+    .bm-rule.info { background: rgba(14,165,233,0.1); border-color: #0ea5e9; color: var(--text-main); }
+    .bm-rule.info strong { color: #38bdf8; }
+    .bm-rule.neutral { background: var(--bg2); border-color: var(--border); color: var(--text-dim); }
+    .bm-rule.neutral strong { color: var(--text-main); }
   </style>
 </head>
 <body>
@@ -446,47 +451,112 @@ let treePath = [];
 let anchorEvents = 0;
 const THRESHOLD = 20;
 
+const BM_AXES = [
+  { id: 'intent', label: '意圖', question: '行為者知道自己在做這件事嗎？',
+    opts: [{ id: 'intentional', label: '有意', desc: '清楚知道自己正在做這件事' },
+           { id: 'unintentional', label: '不小心', desc: '沒有意識到自己正在做這件事' }] },
+  { id: 'autonomy', label: '選擇空間', question: '行為者有選擇空間嗎？',
+    opts: [{ id: 'voluntary', label: '自願', desc: '有選擇，且選擇了這樣做' },
+           { id: 'involuntary', label: '非自願', desc: '選擇空間被封閉（C7 環境或 C5 限制）' }] },
+  { id: 'manipulation', label: '外力來源', question: '行為者受到外部操控嗎？',
+    opts: [{ id: 'manipulated', label: '受人擺布', desc: '行為由第三方引導或利用' },
+           { id: 'independent', label: '沒有受人擺布', desc: '行為來自行為者自身，無外力引導' }] },
+  { id: 'effect_awareness', label: '效果意識', question: '行為者知道這件事對目標的效果嗎？',
+    opts: [{ id: 'aware', label: '知道效果', desc: '知道行為會如何影響對方' },
+           { id: 'unaware', label: '不知道效果', desc: '對行為的衝擊盲目' }] },
+  { id: 'deniability', label: '可否認性', question: '這個行為在社會上可以被否認嗎？',
+    opts: [{ id: 'deniable', label: '可否認', desc: '行為無法被指控，可以被縮回去' },
+           { id: 'undeniable', label: '不可否認', desc: '行為留下可見後果，難以撤回' }] },
+  { id: 'self_deception', label: '動機誠實', question: '行為者對自己的動機誠實嗎？',
+    opts: [{ id: 'honest', label: '不自欺', desc: '清楚知道自己為什麼這樣做' },
+           { id: 'deceived', label: '自欺', desc: '對自己的真實動機合理化或說謊' }] },
+  { id: 'pattern', label: '時間結構', question: '這是孤立事件還是重複模式？',
+    opts: [{ id: 'isolated', label: '孤立事件', desc: '首次或偶發，無重複跡象' },
+           { id: 'systematic', label: '系統性模式', desc: '重複出現，C9 自我強化已啟動' }] }
+];
+
+const BM_RULES = [
+  { label: '完整責任結構',
+    match: s => s.intent === 'intentional' && s.effect_awareness === 'aware' && s.self_deception === 'honest',
+    type: 'danger',
+    text: '行為者清楚知道自己在做什麼、效果為何、且對動機不說謊。責任歸屬清晰，直接溝通或指名有效。' },
+  { label: '合理化型傷害',
+    match: s => s.intent === 'intentional' && s.self_deception === 'deceived',
+    type: 'danger',
+    text: '知道自己在做，但對動機說謊（「我是為你好」）。行為者真的相信自己的理由，直接指控會被誠摯地否認，且對方不覺得自己需要改變。' },
+  { label: '可否認＋有意',
+    match: s => s.intent === 'intentional' && s.deniability === 'deniable',
+    type: 'danger',
+    text: 'deniable-harassment 核心結構：刻意設計讓行為無法被指控。指控本身可能成為反向武器，需從系統層面（紀錄模式、改變場域）應對，不能針對單一事件。' },
+  { label: '可否認＋系統性模式',
+    match: s => s.deniability === 'deniable' && s.pattern === 'systematic',
+    type: 'danger',
+    text: '制度化排擠的核心：每個個別事件可否認，整體模式卻是清晰的排除結構。應對必須紀錄模式、不能只看單一事件。' },
+  { label: '系統性模式——C9 已啟動',
+    match: s => s.pattern === 'systematic',
+    type: 'caution',
+    text: 'C9 機制讓每次重複都降低啟動門檻，也強化觀察者的迴路。應對必須針對整體模式，單次反應無效。' },
+  { label: '自欺移除自我糾正機制',
+    match: s => s.self_deception === 'deceived' && s.autonomy === 'voluntary',
+    type: 'caution',
+    text: '自願做、但對動機說謊。自欺移除了自我糾正的入口——行為者在自己的敘事裡，這是正確的事，沒有動力改變。' },
+  { label: '行為者是工具',
+    match: s => s.manipulation === 'manipulated' && s.autonomy === 'involuntary',
+    type: 'info',
+    text: '道德責任大幅轉移至操控者。對行為者的憤怒指向了錯誤對象；真正的施害者在更上層的結構裡。' },
+  { label: '無知型傷害',
+    match: s => s.intent === 'intentional' && s.effect_awareness === 'unaware',
+    type: 'info',
+    text: '清楚知道自己的行為，但對衝擊盲目。溝通效果比對抗更有用——讓對方看到效果，行為可能會改變。' },
+  { label: '完全的工具',
+    match: s => s.intent === 'unintentional' && s.autonomy === 'involuntary' && s.manipulation === 'manipulated',
+    type: 'info',
+    text: '不知道自己在做、沒有選擇空間、且被人利用。這個人是整個結構的受害者，不是施害者。C6 模型上限讓他看不到自己被利用的位置。' },
+  { label: '意外但感知後果',
+    match: s => s.intent === 'unintentional' && s.effect_awareness === 'aware',
+    type: 'neutral',
+    text: 'C3 延遲羞恥感的典型情境：意外做了，但感知到後果後出現罪惡感。核心動機是修復，不是傷害。' },
+  { label: '清醒的獨立施害者',
+    match: s => s.intent === 'intentional' && s.autonomy === 'voluntary' && s.manipulation === 'independent' && s.self_deception === 'honest' && s.effect_awareness === 'aware',
+    type: 'danger',
+    text: '最清醒、最可預測的施害類型：知道、選擇、獨立、不自欺、知道效果。行為模式穩定可預測，但也最難「感化」——沒有認知落差可以利用。' }
+];
+
+const bmSelected = {};
+
 function buildBehaviorPatterns() {
-  if (!pathsData) { setTimeout(buildBehaviorPatterns, 300); return; }
-  const patterns = pathsData.behavioral_patterns || [];
   const container = document.getElementById('behavior-patterns-content');
   if (container.innerHTML) return;
-  const AXIS = { intent: '有意 / 不小心', autonomy: '自願 / 非自願', manipulation: '受人擺布 / 沒有受人擺布' };
-  container.innerHTML = patterns.map((p, i) => `
-    <div class="bp-card">
-      <div style="padding:12px 20px 0">
-        <div class="bp-name">${p.name_zh}</div>
-      </div>
-      <div class="bp-observable">
-        <div class="bp-observable-label">可觀察到的行為</div>
-        ${p.observable}
-      </div>
-      <button class="bp-expand-btn" onclick="toggleBpDetails('bp-${i}',this)">▶ 展開三軸分析 / 涉及常數 / 認知陷阱</button>
-      <div class="bp-details" id="bp-${i}">
-        <div class="bp-section-label">三軸矩陣分析</div>
-        <div class="bp-matrix">
-          ${Object.entries(AXIS).map(([key, label]) => `
-          <div class="bp-matrix-row">
-            <div class="bp-axis-label">${label}</div>
-            <div class="bp-axis-desc">${(p.matrix && p.matrix[key]) || ''}</div>
-          </div>`).join('')}
-        </div>
-        <div class="bp-section-label" style="margin-top:14px">涉及常數</div>
-        <div class="bp-tags">${(p.active_constants || []).map(c => `<span class="bp-tag-c">${c}</span>`).join('')}</div>
-        <div class="bp-section-label" style="margin-top:14px">涉及路徑</div>
-        <div class="bp-tags">${(p.active_paths || []).map(r => `<span class="bp-tag-p">${r}</span>`).join('')}</div>
-        <div class="bp-section-label" style="margin-top:14px">認知陷阱</div>
-        <div class="bp-trap">${p.cognitive_trap}</div>
-      </div>
+  container.innerHTML = `
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px">
+      ${BM_AXES.map(axis => `
+        <div class="bm-axis">
+          <div class="bm-axis-meta">
+            <div class="bm-axis-label">${axis.label}</div>
+            <div class="bm-axis-q">${axis.question}</div>
+          </div>
+          <div class="bm-opts">
+            ${axis.opts.map(opt => `
+              <button class="bm-opt" onclick="selectBmAxis('${axis.id}','${opt.id}',this)">
+                ${opt.label}<span class="bm-opt-desc">${opt.desc}</span>
+              </button>`).join('')}
+          </div>
+        </div>`).join('')}
     </div>
-  `).join('');
+    <div id="bm-result" class="bm-result">
+      <div class="bm-result-empty">勾選各軸狀態後，框架在此顯示解讀。</div>
+    </div>`;
 }
 
-function toggleBpDetails(id, btn) {
-  const el = document.getElementById(id);
-  const open = el.style.display !== 'block';
-  el.style.display = open ? 'block' : 'none';
-  btn.textContent = open ? '▼ 收起分析' : '▶ 展開三軸分析 / 涉及常數 / 認知陷阱';
+function selectBmAxis(axisId, optId, btn) {
+  btn.closest('.bm-opts').querySelectorAll('.bm-opt').forEach(o => o.classList.remove('sel'));
+  btn.classList.add('sel');
+  bmSelected[axisId] = optId;
+  const panel = document.getElementById('bm-result');
+  const fired = BM_RULES.filter(r => r.match(bmSelected));
+  panel.innerHTML = fired.length
+    ? fired.map(r => `<div class="bm-rule ${r.type}"><strong>${r.label}</strong>${r.text}</div>`).join('')
+    : '<div class="bm-result-empty">目前的組合無特殊觸發規則。</div>';
 }
 
 async function loadData() {
