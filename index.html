@@ -237,6 +237,12 @@
     .mm-sc-body { font-size: 0.82rem; color: var(--text-dim); margin-top: 8px; line-height: 1.65; }
     .mm-sc-signal { color: #22c55e; font-size: 0.8rem; margin-top: 6px; }
     .mm-sc-note { color: var(--text-dim); font-size: 0.8rem; margin-top: 6px; border-left: 3px solid var(--border); padding-left: 10px; }
+    /* ── Layer 5 ── */
+    .scenario-layer5-toggle { font-size: 0.8rem; color: #f59e0b; cursor: pointer; padding: 8px 0 0; }
+    .scenario-layer5-toggle:hover { color: #fbbf24; }
+    .scenario-layer5-body { margin-top: 8px; padding: 12px 14px; background: rgba(245,158,11,0.06); border-left: 3px solid rgba(245,158,11,0.35); border-radius: 0 6px 6px 0; }
+    .l5-step { font-size: 0.8rem; color: var(--text-dim); line-height: 1.85; }
+    .l5-arrow { color: rgba(245,158,11,0.5); margin: 0 5px; font-size: 0.78rem; }
     /* ── Behavior Matrix ── */
     .bm-axis { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
     .bm-axis:last-child { border-bottom: none; }
@@ -1029,6 +1035,14 @@ function buildScenariosPage() {
       + '<div class="scenario-mech-body">' + s.mechanism + '</div>'
       + (s.note ? '<div class="scenario-note">' + s.note + '</div>' : '')
       + '</div>'
+      + (s.layer5
+          ? '<div class="scenario-layer5-toggle" onclick="toggleScLayer5(' + i + ')">▶ 第五層：神經路徑分析</div>'
+            + '<div id="sc-l5-' + i + '" style="display:none"><div class="scenario-layer5-body">'
+            + s.layer5.split('→').map(function(step, si) {
+                return (si > 0 ? '<span class="l5-arrow">→</span>' : '') + '<span class="l5-step">' + step.trim() + '</span>';
+              }).join('')
+            + '</div></div>'
+          : '')
       + '</div>';
   }).join('');
 }
@@ -1042,6 +1056,18 @@ function toggleScenarioMech(i) {
   } else {
     el.style.display = 'none';
     toggle.textContent = '▶ 展開機制分析';
+  }
+}
+
+function toggleScLayer5(i) {
+  const el = document.getElementById('sc-l5-' + i);
+  const toggle = el.previousElementSibling;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    toggle.textContent = '▼ 收起神經路徑分析';
+  } else {
+    el.style.display = 'none';
+    toggle.textContent = '▶ 第五層：神經路徑分析';
   }
 }
 
