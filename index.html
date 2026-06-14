@@ -237,6 +237,25 @@
     .mm-sc-body { font-size: 0.82rem; color: var(--text-dim); margin-top: 8px; line-height: 1.65; }
     .mm-sc-signal { color: #22c55e; font-size: 0.8rem; margin-top: 6px; }
     .mm-sc-note { color: var(--text-dim); font-size: 0.8rem; margin-top: 6px; border-left: 3px solid var(--border); padding-left: 10px; }
+    /* ── Behavior Patterns ── */
+    .bp-card { background: var(--bg1); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+    .bp-name { font-weight: 700; font-size: 0.88rem; color: #f59e0b; margin-bottom: 0; }
+    .bp-observable { padding: 14px 20px; font-size: 0.95rem; line-height: 1.7; color: var(--text-main); }
+    .bp-observable-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 5px; }
+    .bp-expand-btn { width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--border); padding: 10px 20px; font-size: 0.82rem; color: var(--text-dim); cursor: pointer; }
+    .bp-expand-btn:hover { background: var(--bg2); }
+    .bp-details { padding: 16px 20px; display: none; border-top: 1px solid var(--border); }
+    .bp-section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 8px; margin-top: 16px; }
+    .bp-section-label:first-child { margin-top: 0; }
+    .bp-matrix { background: var(--bg2); border-radius: 8px; overflow: hidden; }
+    .bp-matrix-row { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .bp-matrix-row:last-child { border-bottom: none; }
+    .bp-axis-label { font-size: 0.75rem; font-weight: 700; color: #f59e0b; margin-bottom: 4px; }
+    .bp-axis-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+    .bp-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .bp-tag-c { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; }
+    .bp-tag-p { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; }
+    .bp-trap { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 12px 14px; font-size: 0.83rem; color: var(--text-dim); line-height: 1.65; }
   </style>
 </head>
 <body>
@@ -252,6 +271,7 @@
   <button class="nav-btn" onclick="showPage('cases')">情境模擬</button>
   <button class="nav-btn" onclick="showPage('scenarios'); buildScenariosPage()">情境紀錄</button>
   <button class="nav-btn" onclick="showPage('mental-model'); buildMentalModel()">心智模型</button>
+  <button class="nav-btn" onclick="showPage('behavior-patterns'); buildBehaviorPatterns()">行為模式</button>
   <div class="lens-selector">
     <span class="lens-label">視角：</span>
     <button class="lens-btn active" onclick="setLens('victim')">受害者</button>
@@ -425,6 +445,49 @@ let treeData = null;
 let treePath = [];
 let anchorEvents = 0;
 const THRESHOLD = 20;
+
+function buildBehaviorPatterns() {
+  if (!pathsData) { setTimeout(buildBehaviorPatterns, 300); return; }
+  const patterns = pathsData.behavioral_patterns || [];
+  const container = document.getElementById('behavior-patterns-content');
+  if (container.innerHTML) return;
+  const AXIS = { intent: '有意 / 不小心', autonomy: '自願 / 非自願', manipulation: '受人擺布 / 沒有受人擺布' };
+  container.innerHTML = patterns.map((p, i) => `
+    <div class="bp-card">
+      <div style="padding:12px 20px 0">
+        <div class="bp-name">${p.name_zh}</div>
+      </div>
+      <div class="bp-observable">
+        <div class="bp-observable-label">可觀察到的行為</div>
+        ${p.observable}
+      </div>
+      <button class="bp-expand-btn" onclick="toggleBpDetails('bp-${i}',this)">▶ 展開三軸分析 / 涉及常數 / 認知陷阱</button>
+      <div class="bp-details" id="bp-${i}">
+        <div class="bp-section-label">三軸矩陣分析</div>
+        <div class="bp-matrix">
+          ${Object.entries(AXIS).map(([key, label]) => `
+          <div class="bp-matrix-row">
+            <div class="bp-axis-label">${label}</div>
+            <div class="bp-axis-desc">${(p.matrix && p.matrix[key]) || ''}</div>
+          </div>`).join('')}
+        </div>
+        <div class="bp-section-label" style="margin-top:14px">涉及常數</div>
+        <div class="bp-tags">${(p.active_constants || []).map(c => `<span class="bp-tag-c">${c}</span>`).join('')}</div>
+        <div class="bp-section-label" style="margin-top:14px">涉及路徑</div>
+        <div class="bp-tags">${(p.active_paths || []).map(r => `<span class="bp-tag-p">${r}</span>`).join('')}</div>
+        <div class="bp-section-label" style="margin-top:14px">認知陷阱</div>
+        <div class="bp-trap">${p.cognitive_trap}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleBpDetails(id, btn) {
+  const el = document.getElementById(id);
+  const open = el.style.display !== 'block';
+  el.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '▼ 收起分析' : '▶ 展開三軸分析 / 涉及常數 / 認知陷阱';
+}
 
 async function loadData() {
   const [p, t, c] = await Promise.all([
@@ -991,6 +1054,13 @@ loadData();
   <div class="section-title">心智模型</div>
   <div class="section-sub">三層架構——情境歸屬於常數，常數歸屬於層次。點選常數展開情境，點選情境展開機制。</div>
   <div id="mental-model-content"></div>
+</div>
+
+<!-- BEHAVIOR PATTERNS -->
+<div id="page-behavior-patterns" class="page">
+  <div class="section-title">行為模式</div>
+  <div class="section-sub">從可觀察的行為往上追溯。每個行為模式包含多個情境，每個情境包含多個常數。三軸矩陣（有意/不小心 × 自願/非自願 × 受人擺布/沒有受人擺布）幫助判斷行為的來源。</div>
+  <div id="behavior-patterns-content"></div>
 </div>
 
 <!-- UNDERSTANDING -->
